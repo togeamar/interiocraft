@@ -1,20 +1,17 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
-import Welcome from './components/Welcome';
-
+import { Routes, Route } from "react-router-dom";
+import Welcome from "./components/Welcome";
+import BudgetEstimator from "./components/BudgetEstimator";
 
 function App() {
-
-  const location=useLocation();
+  console.log("App render – router active"); // debug
 
   return (
-    <>
-      <Routes>
-          <Route path="/" element={<Welcome />} />
-      </Routes>
-    </>
-  
-      
-  )
+    <Routes>
+      <Route path="/" element={<Welcome />} />
+      <Route path="/budget-estimator" element={<BudgetEstimator />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;
+

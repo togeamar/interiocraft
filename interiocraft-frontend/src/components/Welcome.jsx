@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 export default function Welcome() {
@@ -25,6 +26,10 @@ export default function Welcome() {
         >
           Switch to {theme === 'light' ? 'Dark' : 'Light'} Mode
         </button>
+        <Link to="/budget-estimator" className="btn btn-primary mt-3">
+          Try Budget Estimator
+        </Link>
+
       </div>
     </div>
   );

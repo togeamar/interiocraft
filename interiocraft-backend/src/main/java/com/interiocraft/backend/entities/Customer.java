@@ -1,4 +1,4 @@
-package com.interiocraft.entities;
+package com.interiocraft.backend.entities;
 
 
 import jakarta.persistence.*;

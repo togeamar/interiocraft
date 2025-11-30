@@ -24,7 +24,7 @@ public class Project extends BaseEntity {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designer_id")
     private Designer designer;
     

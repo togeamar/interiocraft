@@ -1,25 +1,21 @@
-package com.interiocraft.backend.entities;
+package com.interiocraft.backend.dto;
 
+import java.math.BigDecimal;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.*;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-@Entity
-@Table(name = "designer")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString(callSuper = true, exclude = "currentProject")
-public class Designer extends BaseEntity {
-    
+@ToString
+public class AddDesignerDto {
+
 	@NotBlank
     @Column(name = "name", nullable = false, length = 100)
     private String fullName;
@@ -38,13 +34,5 @@ public class Designer extends BaseEntity {
     @Column(name = "experience")
     private Integer experienceYears;
     
-    @Column(precision = 3, scale = 2)
-    private BigDecimal rating=BigDecimal.ZERO;
-    
-    @Column(name = "total_projects_completed")
-    private Integer totalProjectsCompleted = 0;
-    
-    
-    @OneToOne(mappedBy="designer")
-    private Project currentProject;
+   
 }

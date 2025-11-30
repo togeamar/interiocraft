@@ -193,17 +193,17 @@ export default function BudgetEstimator() {
                       >
                         <FormControlLabel
                           value="basic"
-                          control={<Radio size="small" />}
+                          control={<Radio size="small" sx={{ color: "var(--primary-color)", "&.Mui-checked": { color: "var(--primary-color)" } }} />}
                           label="Basic"
                         />
                         <FormControlLabel
                           value="standard"
-                          control={<Radio size="small" />}
+                          control={<Radio size="small" sx={{ color: "var(--primary-color)", "&.Mui-checked": { color: "var(--primary-color)" } }} />}
                           label="Standard"
                         />
                         <FormControlLabel
                           value="premium"
-                          control={<Radio size="small" />}
+                          control={<Radio size="small" sx={{ color: "var(--primary-color)", "&.Mui-checked": { color: "var(--primary-color)" } }} />}
                           label="Premium"
                         />
                       </RadioGroup>
@@ -222,6 +222,7 @@ export default function BudgetEstimator() {
                               name="modularKitchen"
                               checked={form.modularKitchen}
                               onChange={handleCheckboxChange}
+                              sx={{ color: "var(--primary-color)", "&.Mui-checked": { color: "var(--primary-color)" } }}
                             />
                           }
                           label="Modular kitchen"
@@ -233,6 +234,7 @@ export default function BudgetEstimator() {
                               name="wardrobes"
                               checked={form.wardrobes}
                               onChange={handleCheckboxChange}
+                              sx={{ color: "var(--primary-color)", "&.Mui-checked": { color: "var(--primary-color)" } }}
                             />
                           }
                           label="Wardrobes for all bedrooms"
@@ -244,6 +246,7 @@ export default function BudgetEstimator() {
                               name="falseCeiling"
                               checked={form.falseCeiling}
                               onChange={handleCheckboxChange}
+                              sx={{ color: "var(--primary-color)", "&.Mui-checked": { color: "var(--primary-color)" } }}
                             />
                           }
                           label="False ceiling"
@@ -255,6 +258,7 @@ export default function BudgetEstimator() {
                               name="painting"
                               checked={form.painting}
                               onChange={handleCheckboxChange}
+                              sx={{ color: "var(--primary-color)", "&.Mui-checked": { color: "var(--primary-color)" } }}
                             />
                           }
                           label="Complete painting"
@@ -264,10 +268,10 @@ export default function BudgetEstimator() {
 
                     {/* Buttons */}
                     <Stack direction="row" spacing={2}>
-                      <Button variant="contained" type="submit" disableElevation>
+                      <Button variant="contained" type="submit" disableElevation sx={{ bgcolor: "var(--primary-color)", "&:hover": { bgcolor: "var(--secondary-color)" } }}>
                         Calculate estimate
                       </Button>
-                      <Button variant="outlined" onClick={handleReset}>
+                      <Button variant="outlined" onClick={handleReset} sx={{ borderColor: "var(--primary-color)", color: "var(--primary-color)", "&:hover": { borderColor: "var(--secondary-color)", bgcolor: "var(--primary-hover)" } }}>
                         Reset
                       </Button>
                     </Stack>
@@ -282,11 +286,9 @@ export default function BudgetEstimator() {
             <Card
               elevation={4}
               sx={{
-                bgcolor: "#111827",
-                color: "#f9fafb",
+                bgcolor: "var(--primary-color)",
+                color: "var(--light-text)",
                 height: "100%",
-                display: "flex",
-                flexDirection: "column",
               }}
             >
               <CardContent sx={{ flexGrow: 1 }}>
@@ -431,16 +433,7 @@ export default function BudgetEstimator() {
                 )}
               </CardContent>
 
-              <Box sx={{ p: 2.5 }}>
-                <Typography
-                  variant="caption"
-                  color="rgba(249,250,251,0.6)"
-                  display="block"
-                >
-                  Later you can add a button here like “Book a free consultation”
-                  and link it to your Consultation Requests page.
-                </Typography>
-              </Box>
+
             </Card>
           </Grid>
         </Grid>

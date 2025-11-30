@@ -30,6 +30,11 @@ export default function Welcome() {
           Try Budget Estimator
         </Link>
 
+        <Link to="/consultations" className="btn btn-outline-primary mt-2">
+          Book a Consultation
+        </Link>
+
+
       </div>
     </div>
   );

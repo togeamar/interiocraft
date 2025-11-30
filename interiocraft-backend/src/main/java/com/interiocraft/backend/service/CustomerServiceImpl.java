@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.interiocraft.backend.custom_exception.ApiException;
 import com.interiocraft.backend.dto.ApiResponse;
 import com.interiocraft.backend.dto.CustomerRegDto;
+import com.interiocraft.backend.dto.CustomerSignInDto;
 import com.interiocraft.backend.entities.Customer;
 import com.interiocraft.backend.repository.CustomerRepository;
 
@@ -32,6 +33,15 @@ public class CustomerServiceImpl implements CustomerService {
 		
 		Customer persistentcustomer =customerRepo.save(customer);
 		return new ApiResponse("New Customer Registered with ID="+persistentcustomer.getId(), "Success");
+	}
+
+
+	@Override
+	public ApiResponse customerSignIn(CustomerSignInDto custindto) {
+		
+		Customer customer=customerRepo.findByEmailAndPassword(custindto.getEmail(), custindto.getPassword());
+		
+		return new ApiResponse(customer.toString(),"Success");
 	}
 	
 	

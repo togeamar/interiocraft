@@ -26,7 +26,7 @@ public class Customer extends BaseEntity {
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
     
-	@NotBlank(message="First name is required")
+	@NotBlank(message="Last name is required")
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
     
@@ -36,12 +36,14 @@ public class Customer extends BaseEntity {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
     
+	@NotBlank
 	@Size(min = 6, max = 18, message = "Password must be between 6 and 18 characters")
 	@Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,100}$",
 	    message = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character")
     @Column(nullable = false)
     private String password;
     
+	@NotBlank
 	@Pattern(regexp = "^[0-9]{10,15}$", message = "Phone number must contain 10 to 15 digits")
     @Column(name = "phone_number", length = 15)
     private String phoneNumber;

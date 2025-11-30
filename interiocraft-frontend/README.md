@@ -1,16 +1,68 @@
-# React + Vite
+# InterioCraft - Interior Design Webapp
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive interior design webapp built with React and Bootstrap.
 
-Currently, two official plugins are available:
+## Features
+- **Hero Slider**: 4 rotating background images with smooth transitions
+- **About Section**: Company information and services overview
+- **Services**: 4 key interior design services with icons
+- **Portfolio**: 6 project showcases with hover effects
+- **Contact Form**: Lead generation form with contact details
+- **Responsive Design**: Mobile-first approach with Bootstrap
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+- React 19
+- Vite (Build tool)
+- React Bootstrap
+- React Router DOM
+- React Icons
+- Font Awesome (CDN)
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. **Install dependencies:**
+```bash
+npm install
+```
 
-## Expanding the ESLint configuration
+2. **Start development server:**
+```bash
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+3. **Build for production:**
+```bash
+npm run build
+```
+
+## Project Structure
+```
+src/
+├── components/
+│   ├── Layouts/
+│   │   ├── Layout.jsx
+│   │   ├── NavigationBar.jsx
+│   │   └── Footer.jsx
+│   └── Pages/
+│       └── Home.jsx
+├── assets/
+│   ├── css/
+│   │   └── style.css
+│   └── images/
+│       ├── hero-bg-1.jpg to hero-bg-4.jpg
+│       └── portfolio images
+├── App.jsx
+└── main.jsx
+```
+
+## Color Scheme
+- Primary: #8B4513 (Brown)
+- Secondary: #2F4F4F (Dark Gray)
+- Accent: #DAA520 (Gold)
+- Background: #F5F5DC (Light Beige)
+
+## Browser Support
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)

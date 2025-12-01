@@ -30,9 +30,7 @@ public class AdminController {
 	
 	private final DesignerService designerService;
 	
-	private final AuthenticationManager authenticationManager;
 	
-	private final JwtUtils jwtutil;
 	
 	@PostMapping("/AddAdmin")
 	public ResponseEntity<?> addAdmin(@RequestBody @Valid AdminRegDto adregdto) {
@@ -46,20 +44,13 @@ public class AdminController {
 	public ResponseEntity<?> adminSignIn(@RequestBody @Valid AdminSignInDto adsigndto) {
 		System.out.println("in customer reg " + adsigndto);
 		
-		UsernamePasswordAuthenticationToken authToken = 
-	            new UsernamePasswordAuthenticationToken(
-	                adsigndto.getEmail(),    // Username (email)
-	                adsigndto.getPassword()  // Password (plain text)
-	            );
-		Authentication authenticatedAdmin = authenticationManager.authenticate(authToken);
+		if(adminService.adminSignIn(adsigndto)!=null) {
+			return ResponseEntity.status(HttpStatus.ACCEPTED).body(adminService.adminSignIn(adsigndto));
+		}
 		
-		UserDetails userdetails=(UserDetails) authenticatedAdmin.getPrincipal();
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("admin login failed");
 		
-		String jwt=jwtutil.generateToken(userdetails);
 		
-		return ResponseEntity.ok(
-	            new ApiResponse(jwt, "Admin Login successful")
-	        );
 	}
 	
 	@PostMapping("/AddDesigner")

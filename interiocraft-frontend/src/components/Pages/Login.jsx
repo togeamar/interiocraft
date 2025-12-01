@@ -1,39 +1,170 @@
-import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { Button, Col, Container,Card, Form as BootstrapForm , Row,Spinner,Alert, InputGroup } from "react-bootstrap";
+import * as yup from 'yup';
+import { doLogin } from "../../services/userservices.js";
+import { Formik,Form,Field, ErrorMessage } from "formik";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import "./Login.css";
+import { Eye, EyeSlash } from "react-bootstrap-icons";
+import loginbg from "../../assets/images/ai-generated-modern-styled-entryway.jpg"
+//import { getScore } from "../services/adminservice.js";
 
-export function Login() {
-  return (
-    <section className="py-5">
-      <Container>
-        <Row className="justify-content-center">
-          <Col md={6} lg={4}>
-            <Card className="shadow-sm">
-              <Card.Body className="p-4">
-                <h2 className="text-center fw-bold mb-4">Login</h2>
-                <Form>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" placeholder="Enter your email" required />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control type="password" placeholder="Enter your password" required />
-                  </Form.Group>
-                  <Button 
-                    type="submit" 
-                    className="w-100 fw-semibold" 
-                    style={{backgroundColor: 'var(--primary-color)', borderColor: 'var(--primary-color)'}}
-                  >
-                    Login
-                  </Button>
-                </Form>
-                <div className="text-center mt-3">
-                  <small className="text-muted">Don't have an account? <a href="/register" style={{color: 'var(--primary-color)', textDecoration: 'none'}}>Register here</a></small>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    </section>
-  );
-}
+
+const LoginSchema=yup.object().shape({
+    email:yup.string().email("email is invalid").required("email is required"),
+    password:yup.string().required("password is required").min(6, "Password must be at least 6 characters")
+    .max(16, "Password must not exceed 16 characters")
+    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .matches(/[0-9]/, "Password must contain at least one number")
+    .matches(/[^A-Za-z0-9]/, "Password must contain at least one special character")
+});
+
+
+
+export function Login(){
+    const navigate=useNavigate();
+    const [loginError, setLoginError] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
+    const toggleShowPassword = () => setShowPassword(!showPassword);
+
+    const handleSubmit= async (values,{setSubmitting})=>{
+        setLoginError(null);
+        try{
+            const res=await doLogin(values);
+            console.log(res.data+"from login");
+            localStorage.setItem("token",res.data.jwt);
+            localStorage.setItem("type",res.data.status);
+            localStorage.setItem("loggedinuser",res.data.username);
+            localStorage.setItem("loggedinemail",res.data.email);
+            if(res.data.type==="admin") {
+                navigate("/admin")
+            }else{
+                navigate("/landing");
+            }
+        }
+        catch(error){
+            let message = "Something went wrong";
+
+            if (error.response) {
+                message = error.response.data?.message || "Server error";
+            } else if (error.request) {
+                message = "Network error. Please check your connection.";
+            } else {
+                message = error.message;
+            }
+            console.error("Login error2:", message );
+            //alert(error.response?.data?.message || "Login Failed");
+            setLoginError(message );
+        }
+        finally{
+            setSubmitting(false);
+        }
+    };
+
+    return(
+        <Container className="mt-10">
+            <Row className="justify-content-md-evenly">
+                <Col md={4} lg={3} className="d-flex justify-content-center mr-5 align-items-center text-center">
+                    <h1 className="welcome-heading">
+                        “Art you live in, craft you feel.”
+                    </h1>
+                </Col>
+                <Col md={6} lg={4} className="mx-auto me-5">
+                <Card className="login-card shadow-lg border-0 rounded-4">
+                    <Card.Body>
+                    <Card.Title className="login-title text-center mb-4">Login</Card.Title>
+
+                    <Formik
+                        initialValues={{ email: '', password: '' }}
+                        validationSchema={LoginSchema}
+                        validateOnChange={true}
+                        validateOnBlur={true}
+                        onSubmit={handleSubmit}
+                    >
+                        
+                        {({ touched, errors, isSubmitting }) => (
+
+                        <Form>
+                            
+                            {loginError && (
+                                <Alert
+                                    variant="danger" 
+                                    onClose={() => setLoginError(null)} 
+                                    dismissible
+                                >
+                                    {loginError}
+                                </Alert>
+                            )}
+                            <BootstrapForm.Group className="mb-3" controlId="formEmail">
+                            <BootstrapForm.Label>Email address</BootstrapForm.Label>
+                            <Field
+                                type="email"
+                                name="email"
+                                placeholder="Enter email"
+                                as={BootstrapForm.Control}
+                                isInvalid={touched.email && !!errors.email}
+                            />
+                            <ErrorMessage
+                                name="email"
+                                component="div"
+                                className="invalid-feedback"
+                            />
+                            </BootstrapForm.Group>
+
+                            <BootstrapForm.Group className="mb-3" controlId="formPassword">
+                            <BootstrapForm.Label>Password</BootstrapForm.Label>
+                            <InputGroup>
+                                <Field
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    placeholder="Password"
+                                    as={BootstrapForm.Control}
+                                    isInvalid={touched.password && !!errors.password}
+                                />
+                                <Button variant="outline-secondary" onClick={toggleShowPassword}>
+                                        {showPassword ? <EyeSlash className="password-icon" /> : <Eye className="password-icon" />}
+                                </Button>
+                                <ErrorMessage
+                                name="password"
+                                component="div"
+                                className="invalid-feedback"
+                                />
+                            </InputGroup>
+                            
+                            </BootstrapForm.Group>
+                            <div className="d-grid">
+                            <Button type="submit" className="login-btn" disabled={isSubmitting}>
+                                {isSubmitting ? (
+                                    <>
+                                        <Spinner
+                                        as="span"
+                                        animation="border"
+                                        size="sm"
+                                        role="status"
+                                        aria-hidden="true"
+                                        className="me-2"
+                                        />
+                                        Logging in...
+                                    </>
+                                    ) : (
+                                    'Login'
+                                )}
+                            </Button>
+                            <div className="d-flex justify-content-end align-items-center gap-2 mx-2 mt-1">
+                               <p className="mb-0">Dont have an account</p>
+                               <Button className="btn-outline-secondary" size="sm" onClick={()=>{navigate("/signup")}}>Signup</Button>
+                            </div>
+                            </div>
+                        </Form>
+                        )}
+                    </Formik>
+                    </Card.Body>
+                </Card>
+                </Col>
+            </Row>
+        </Container>
+    )
+};
+
+export default Login;

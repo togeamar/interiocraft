@@ -6,6 +6,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,13 +22,13 @@ import com.interiocraft.backend.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@CrossOrigin(origins = "http://localhost:5173", methods = {RequestMethod.GET, RequestMethod.POST})
 @RestController
 @RequestMapping("/customer")
 @RequiredArgsConstructor
 public class CustomerController {
 	private final CustomerService customerService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtils jwtUtils;
+    
     
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerCustomer(@RequestBody @Valid CustomerRegDto customerRegDto){
@@ -38,19 +40,8 @@ public class CustomerController {
 	@PostMapping("/signin")
 	public ResponseEntity<?> cutomerSignIn(@RequestBody @Valid CustomerSignInDto signdto){
 		
-		UsernamePasswordAuthenticationToken authToken = 
-	            new UsernamePasswordAuthenticationToken(
-	                signdto.getEmail(),    // Username (email)
-	                signdto.getPassword()  // Password (plain text)
-	            );
 		
-		Authentication authenticatedUser = authenticationManager.authenticate(authToken);
 		
-		UserDetails userdetails=(UserDetails) authenticatedUser.getPrincipal();
-		String jwt = jwtUtils.generateToken(userdetails);
-		
-		return ResponseEntity.ok(
-	            new ApiResponse(jwt, "Customer Login successful")
-	        );
+		return ResponseEntity.status(HttpStatus.ACCEPTED).body(customerService.customerSignIn(signdto));
 	}
 }

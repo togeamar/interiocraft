@@ -1,47 +1,221 @@
-import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import React, { useState } from "react";
+import { Container, Row, Col, Card, Button, Spinner, Alert } from "react-bootstrap";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import "./SignUp.css";
+import { doSignup } from "../../services/userservices";
+import { Eye, EyeSlash } from "react-bootstrap-icons";
 
 export function Register() {
+  const navigate = useNavigate();
+  const [serverError, setServerError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+
+  const SignUpSchema = Yup.object().shape({
+    firstName: Yup.string().min(2, "Too short!").required("First name is required"),
+    lastname: Yup.string().min(2, "Too short!").required("Last name is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required")
+      .max(16, "Password must not exceed 16 characters")
+      .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+      .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .matches(/[0-9]/, "Password must contain at least one phoneNumber")
+      .matches(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
+    phoneNumber:Yup.string().matches(/^[6-9]\d{9}$/, "Enter a valid 10-digit phone phoneNumber").required("Phone phoneNumber is required"),
+  });
+
+  const togglepassword = () => setShowPassword(!showPassword)
+
+  const handleSubmit = async (values, { resetForm }) => {
+    setLoading(true);
+    setServerError(null);
+    try {
+      const res = await doSignup(values);
+      setSuccess("Account created successfully!");
+      resetForm();
+      setTimeout(() => navigate("/"), 1500);
+    } catch (error) {
+      setServerError(error.response?.data?.message || "Signup failed!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <section className="py-5">
-      <Container>
-        <Row className="justify-content-center">
-          <Col md={6} lg={4}>
-            <Card className="shadow-sm">
-              <Card.Body className="p-4">
-                <h2 className="text-center fw-bold mb-4">Register</h2>
-                <Form>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Full Name</Form.Label>
-                    <Form.Control type="text" placeholder="Enter your full name" required />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control type="email" placeholder="Enter your email" required />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control type="password" placeholder="Enter your password" required />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Confirm Password</Form.Label>
-                    <Form.Control type="password" placeholder="Confirm your password" required />
-                  </Form.Group>
-                  <Button 
-                    type="submit" 
-                    className="w-100 fw-semibold" 
-                    style={{backgroundColor: 'var(--primary-color)', borderColor: 'var(--primary-color)'}}
-                  >
-                    Register
-                  </Button>
-                </Form>
-                <div className="text-center mt-3">
-                  <small className="text-muted">Already have an account? <a href="/login" style={{color: 'var(--primary-color)', textDecoration: 'none'}}>Login here</a></small>
-                </div>
-              </Card.Body>
+    <Container className="signupcontainer d-flex justify-content-center align-items-center">
+      <Row className="w-100 justify-content-center">
+        <Col className="card" md={6} lg={5}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Card className="shadow-lg border-0 rounded-4 p-4 signup-card">
+              <Card.Title className="signup-title text-center mb-3 fw-bold fs-3 text-primary">
+                User Signup
+              </Card.Title>
+
+              {serverError && (
+                <Alert
+                  variant="danger"
+                  dismissible
+                  onClose={() => setServerError(null)}
+                >
+                  {serverError}
+                </Alert>
+              )}
+
+              {success && (
+                <Alert
+                  variant="success"
+                  dismissible
+                  onClose={() => setSuccess(null)}
+                >
+                  {success}
+                </Alert>
+              )}
+
+              <Formik
+                initialValues={{firstName: "",lastname: "",email: "",phoneNumber:"",password: "",
+                }}
+                validationSchema={SignUpSchema}
+                onSubmit={handleSubmit}
+              >
+                {({ touched, errors }) => (
+                  <Form>
+                    <div className="mb-2">
+                      <label className="form-label fw-semibold">First Name</label>
+                      <Field
+                        name="firstName"
+                        type="text"
+                        className={`form-control ${touched.firstName && errors.firstName ? "is-invalid" : ""
+                          }`}
+                        placeholder="Enter first name"
+                      />
+                      <ErrorMessage
+                        component="div"
+                        name="firstName"
+                        className="invalid-feedback"
+                      />
+                    </div>
+
+                    <div className="mb-2">
+                      <label className="form-label fw-semibold">Last Name</label>
+                      <Field
+                        name="lastname"
+                        type="text"
+                        className={`form-control ${touched.lastname && errors.lastname ? "is-invalid" : ""
+                          }`}
+                        placeholder="Enter last name"
+                      />
+                      <ErrorMessage
+                        component="div"
+                        name="lastname"
+                        className="invalid-feedback"
+                      />
+                    </div>
+
+                    <div className="mb-2">
+                      <label className="form-label fw-semibold">Email</label>
+                      <Field
+                        name="email"
+                        type="email"
+                        className={`form-control ${touched.email && errors.email ? "is-invalid" : ""
+                          }`}
+                        placeholder="Enter email"
+                      />
+                      <ErrorMessage
+                        component="div"
+                        name="email"
+                        className="invalid-feedback"
+                      />
+                    </div>
+                    <div className="mb-2">
+                      <label className="form-label fw-semibold">phoneNumber</label>
+                      <Field
+                        name="phoneNumber"
+                        type="text"
+                        className={`form-control ${touched.phoneNumber && errors.phoneNumber ? "is-invalid" : ""
+                          }`}
+                        placeholder="Enter phoneNumber"
+                      />
+                      <ErrorMessage
+                        component="div"
+                        name="phoneNumber"
+                        className="invalid-feedback"
+                      />
+                    </div>
+                    
+
+
+                    <div className="mb-2">
+                      <label className="form-label fw-semibold">Password</label>
+                      <Field
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        className={`form-control ${touched.password && errors.password ? "is-invalid" : ""
+                          }`}
+                        placeholder="Enter password"
+                      />
+                      <ErrorMessage
+                        component="div"
+                        name="password"
+                        className="invalid-feedback"
+                      />
+                      <Button variant="outline-secondary" onClick={togglepassword}>
+                        {showPassword ? <EyeSlash /> : <Eye />}
+                      </Button>
+                    </div>
+
+                    <div className="d-grid mt-4">
+                      <Button
+                        type="submit"
+
+                        className="rounded-pill"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <>
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
+                              aria-hidden="true"
+                              className="me-2"
+                            />
+                            Signing Up...
+                          </>
+                        ) : (
+                          "Sign Up"
+                        )}
+                      </Button>
+                    </div>
+
+                    <div className="d-flex justify-content-end align-items-center gap-2 mt-3">
+                      <p className="mb-0">Already have an account?</p>
+                      <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        onClick={() => navigate("/login")}
+                      >
+                        Login
+                      </Button>
+                    </div>
+                  </Form>
+                )}
+              </Formik>
             </Card>
-          </Col>
-        </Row>
-      </Container>
-    </section>
+          </motion.div>
+        </Col>
+      </Row>
+    </Container>
   );
 }

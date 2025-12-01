@@ -8,7 +8,13 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -20,7 +26,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true, exclude = "projects")
-public class Customer extends BaseEntity {
+public class Customer extends BaseEntity implements UserDetails {
     
 	@NotBlank(message = "First name is required")
     @Column(name = "first_name", nullable = false, length = 50)
@@ -37,9 +43,6 @@ public class Customer extends BaseEntity {
     private String email;
     
 	@NotBlank
-	@Size(min = 6, max = 18, message = "Password must be between 6 and 18 characters")
-	@Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,100}$",
-	    message = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character")
     @Column(nullable = false)
     private String password;
     
@@ -62,5 +65,17 @@ public class Customer extends BaseEntity {
         this.projects.remove(project);
         project.setCustomer(null);
     }
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		
+		return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+	}
+
+	@Override
+	public String getUsername() {
+		// TODO Auto-generated method stub
+		return email;
+	}
 }
 

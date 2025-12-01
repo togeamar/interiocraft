@@ -7,6 +7,20 @@ import org.springframework.web.bind.annotation.*;
 import com.interiocraft.backend.dto.AddDesignerDto;
 import com.interiocraft.backend.dto.AdminRegDto;
 import com.interiocraft.backend.dto.ProjectDto;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.interiocraft.backend.dto.AddDesignerDto;
+import com.interiocraft.backend.dto.AdminRegDto;
+import com.interiocraft.backend.dto.AdminSignInDto;
+import com.interiocraft.backend.dto.ApiResponse;
+import com.interiocraft.backend.security.JwtUtils;
 import com.interiocraft.backend.service.AdminService;
 import com.interiocraft.backend.service.DesignerService;
 import com.interiocraft.backend.service.ProjectService;
@@ -24,11 +38,26 @@ public class AdminController {
 	
 	private final ProjectService projectService;
 	
+	
 	@PostMapping("/AddAdmin")
 	public ResponseEntity<?> addAdmin(@RequestBody @Valid AdminRegDto adregdto) {
 		System.out.println("in customer reg " + adregdto);
+
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(adminService.adminRegister(adregdto));
+	}
+	
+	@PostMapping("/signin")
+	public ResponseEntity<?> adminSignIn(@RequestBody @Valid AdminSignInDto adsigndto) {
+		System.out.println("in customer reg " + adsigndto);
+		
+		if(adminService.adminSignIn(adsigndto)!=null) {
+			return ResponseEntity.status(HttpStatus.ACCEPTED).body(adminService.adminSignIn(adsigndto));
+		}
+		
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("admin login failed");
+		
+		
 	}
 	
 	@PostMapping("/AddDesigner")

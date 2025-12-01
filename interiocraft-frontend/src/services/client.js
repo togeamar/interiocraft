@@ -1,4 +1,4 @@
-/*import axios from "axios";
+import axios from "axios";
 
 const client = axios.create({ baseURL: '/' });
 
@@ -8,4 +8,4 @@ client.interceptors.request.use((config) => {
         return config;
     });
 
-export default client;*/
+export default client;

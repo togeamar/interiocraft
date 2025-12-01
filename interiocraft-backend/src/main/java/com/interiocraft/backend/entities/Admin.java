@@ -2,6 +2,13 @@ package com.interiocraft.backend.entities;
 
 
 
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -16,7 +23,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
-public class Admin extends BaseEntity {
+public class Admin extends BaseEntity implements UserDetails{
     
     @NotBlank(message = "First name is required")
     @Column(name = "first_name", nullable = false, length = 50)
@@ -32,13 +39,23 @@ public class Admin extends BaseEntity {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
     
-	@Size(min = 6, max = 18, message = "Password must be between 6 and 18 characters")
-	@Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,100}$",
-	    message = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character")
+	@NotBlank
     @Column(nullable = false)
     private String password;
     
 	@Pattern(regexp = "^[0-9]{10,15}$", message = "Phone number must contain 10 to 15 digits")
     @Column(name = "phone_number", length = 15)
     private String phoneNumber;
+	
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		
+		return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+	}
+
+	@Override
+	public String getUsername() {
+		// TODO Auto-generated method stub
+		return email;
+	}
 }

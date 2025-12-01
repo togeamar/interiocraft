@@ -11,6 +11,7 @@
     --divider-light: rgba(55,65,81,0.8);
     --divider-strong: rgba(55,65,81,0.9);
     --primary-hover: rgba(139, 69, 19, 0.04);
+    
 }
 
 * {
@@ -29,6 +30,7 @@ body{
     width: 100%;
     background-color: var(--light-bg);
     color: var(--secondary-color);
+    overflow-y: scroll;
 }
 
 .main-content {
@@ -154,7 +156,9 @@ body{
   opacity: 1;
 }
 
-
+body::-webkit-scrollbar {
+  display: none;
+}
 
 @media (max-width: 768px) {
   .hero-section {

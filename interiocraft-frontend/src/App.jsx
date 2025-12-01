@@ -9,6 +9,8 @@ import { Register } from "./components/Pages/Register";
 import BudgetEstimator from "./components/Pages/BudgetEstimator";
 import { Consultation } from "./components/Pages/Consultation";
 import ConsultationRequests from "./components/ConsultationRequests";
+import { CustomerDashboard } from "./components/Pages/CustomerDashboard";  // <-- ADD THIS
+
 function App() {
   return (
     <BrowserRouter>
@@ -22,10 +24,13 @@ function App() {
           <Route path="register" element={<Register />} />
           <Route path="budget-estimator" element={<BudgetEstimator />} />
           <Route path="consultation" element={<Consultation />} />
-        </Route>
-        <Route path="/consultations" element={<ConsultationRequests />} />
 
-    </Routes>
+          <Route path="dashboard" element={<CustomerDashboard />} /> 
+          {/* <-- ADD THIS */}
+        </Route>
+
+        <Route path="/consultations" element={<ConsultationRequests />} />
+      </Routes>
     </BrowserRouter>
   );
 }

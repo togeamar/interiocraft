@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.interiocraft.backend.dto.CustomerLoginResponseDto;
 import com.interiocraft.backend.dto.CustomerRegDto;
+import com.interiocraft.backend.dto.CustomerSignInDto;
 import com.interiocraft.backend.service.CustomerService;
 
 import jakarta.validation.Valid;
@@ -17,12 +19,21 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/customer")
 @RequiredArgsConstructor
 public class CustomerController {
-	private final CustomerService customerService;
 	
-	@PostMapping("/signup")
-	public ResponseEntity<?> registerCustomer(@RequestBody @Valid CustomerRegDto customerRegDto){
-		System.out.println("in customer reg " + customerRegDto);
-		
-		return ResponseEntity.status(HttpStatus.CREATED).body(customerService.customerRegister(customerRegDto));
-	}
+    private final CustomerService customerService;
+	
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerCustomer(@RequestBody @Valid CustomerRegDto customerRegDto){
+        System.out.println("in customer reg " + customerRegDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                             .body(customerService.customerRegister(customerRegDto));
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<CustomerLoginResponseDto> signInCustomer(
+            @RequestBody @Valid CustomerSignInDto signInDto) {
+
+        CustomerLoginResponseDto resp = customerService.customerSignIn(signInDto);
+        return ResponseEntity.ok(resp);
+    }
 }

@@ -1,6 +1,7 @@
 package com.interiocraft.backend.service;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,8 @@ public class AdminServiceImpl implements AdminService {
 	
 	private final ModelMapper modelMapper;
 	
+	private final PasswordEncoder passwordEncoder; 
+	
 	
 	@Override
 	public ApiResponse adminRegister(AdminRegDto admindto) {
@@ -29,6 +32,10 @@ public class AdminServiceImpl implements AdminService {
 			throw new ApiException("email is not valid");
 			
 		Admin entity =modelMapper.map(admindto, Admin.class);
+		
+		String encodedPassword=passwordEncoder.encode(entity.getPassword());
+		
+		entity.setPassword(encodedPassword);
 		
 		Admin persistentEntity=adminRepo.save(entity);
 		return new ApiResponse("New Admin Has beedn added by the Id"+persistentEntity.getId(),"Success");

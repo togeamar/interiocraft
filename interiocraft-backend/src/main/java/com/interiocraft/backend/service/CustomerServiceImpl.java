@@ -1,6 +1,7 @@
 package com.interiocraft.backend.service;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomerServiceImpl implements CustomerService {
 	private final CustomerRepository customerRepo;
 	private final ModelMapper modelMapper;
+	private final PasswordEncoder passwordEncoder; 
 	
 	
 	@Override
@@ -29,6 +31,8 @@ public class CustomerServiceImpl implements CustomerService {
 		
 		Customer customer=modelMapper.map(regdto, Customer.class);
 		
+		String EnodedPassword=passwordEncoder.encode(regdto.getPassword());
+		customer.setPassword(EnodedPassword);
 		System.out.println("mapped entity "+customer);
 		
 		Customer persistentcustomer =customerRepo.save(customer);

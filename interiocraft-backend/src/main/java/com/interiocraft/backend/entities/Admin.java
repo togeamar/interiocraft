@@ -55,7 +55,6 @@ public class Admin extends BaseEntity implements UserDetails{
 
 	@Override
 	public String getUsername() {
-		// TODO Auto-generated method stub
 		return email;
 	}
 }

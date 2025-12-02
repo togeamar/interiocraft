@@ -1,6 +1,6 @@
 package com.interiocraft.backend.dto;
 
-import java.math.BigDecimal;
+
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;

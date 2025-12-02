@@ -25,6 +25,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> handleException(Exception e) {
 		System.out.println("in catch-all ");
+		e.printStackTrace();
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), "Failed"));
 	}
 
@@ -36,7 +37,7 @@ public class GlobalExceptionHandler {
 		List<FieldError> fieldErrors = e.getFieldErrors();
 		
 		Map<String, String> errorMap = fieldErrors.stream() //Stream<FieldError>
-		.collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+		.collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage, (msg1, msg2) -> msg1 + "; " + msg2));
 		return ResponseEntity
 				.status(HttpStatus.BAD_REQUEST)
 				.body(errorMap); 

@@ -8,8 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "designer")
@@ -46,6 +44,7 @@ public class Designer extends BaseEntity {
     
     private boolean isAvailable;
     
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @OneToOne(mappedBy="designer")
     private Project currentProject;
 }

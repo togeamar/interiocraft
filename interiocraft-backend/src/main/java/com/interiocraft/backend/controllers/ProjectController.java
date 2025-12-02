@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,14 +26,15 @@ public class ProjectController {
 	
 	private final ProjectService projectService;
 	
-	@PostMapping("/addProject/{email}")
-	public ResponseEntity<?> createProject(@PathVariable String email,@RequestBody @Valid ProjectDto projectDto,
-			@RequestParam("files") MultipartFile[] files) {
-		if (files.length > 4) {
+	@PostMapping(value = "/addProject/{email}", consumes = "multipart/form-data")
+	public ResponseEntity<?> createProject(@PathVariable String email, 
+			@org.springframework.web.bind.annotation.RequestPart("project") @Valid ProjectDto projectDto,
+			@org.springframework.web.bind.annotation.RequestPart(value = "files", required = false) MultipartFile[] files) {
+		if (files != null && files.length > 4) {
 	        return ResponseEntity.badRequest().body("You can only upload a maximum of 4 images.");
 	    }
 		System.out.println("in add project controller");
-		return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(email,projectDto,files));
+		return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(email,projectDto,files != null ? files : new MultipartFile[0]));
 	}
 	
 	@GetMapping("/projects")

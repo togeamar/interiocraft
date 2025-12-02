@@ -16,13 +16,16 @@ public class LoginResponse{
 	private String jwt;
 	private String username;
 	private String email;
-	public LoginResponse(String message, String status,String jwt,String username,String email) {
+	private Long id;
+	
+	public LoginResponse(String message, String status,String jwt,String username,String email, Long id) {
 		super();
 		this.message = message;
 		this.status = status;
 		this.jwt=jwt;
 		this.username=username;
 		this.email=email;
+		this.id = id;
 		this.timeStamp=LocalDateTime.now();
 	}	
 }

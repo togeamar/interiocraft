@@ -51,6 +51,7 @@ public class Customer extends BaseEntity implements UserDetails {
     @Column(name = "phone_number", length = 15)
     private String phoneNumber;
     
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Project> projects = new ArrayList<>();
     
@@ -74,7 +75,6 @@ public class Customer extends BaseEntity implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		// TODO Auto-generated method stub
 		return email;
 	}
 }

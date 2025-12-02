@@ -1,88 +1,87 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Badge, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge, Button, Spinner, Alert, Carousel } from 'react-bootstrap';
 import { ArrowLeft, MapPin, Calendar, User, DollarSign, Home } from 'lucide-react';
+import client from '../../services/client';
+import { API_BASE_URL } from '../../constants/ApiConstants';
 
 const ProjectDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const projects = [
-    {
-      id: 1,
-      projectName: "Modern Minimalist Loft",
-      projectType: "Residential",
-      image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1600",
-      description: "A clean, airy renovation maximizing natural light and open space.",
-      budget: 250000,
-      areaSqft: 1500,
-      location: "Downtown Mumbai",
-      city: "Mumbai",
-      state: "Maharashtra",
-      projectStatus: "COMPLETED",
-      designerName: "Sarah Johnson",
-      startDate: "2024-01-15",
-      completionDate: "2024-03-20"
-    },
-    {
-      id: 2,
-      projectName: "Eco-Friendly Office",
-      projectType: "Commercial",
-      image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4f9d?auto=format&fit=crop&q=80&w=1600",
-      description: "Sustainable workspace design incorporating biophilic elements.",
-      budget: 180000,
-      areaSqft: 2000,
-      location: "Tech Park Bangalore",
-      city: "Bangalore",
-      state: "Karnataka",
-      projectStatus: "COMPLETED",
-      designerName: "Mike Chen",
-      startDate: "2024-02-01",
-      completionDate: "2024-04-15"
-    },
-    {
-      id: 3,
-      projectName: "Luxury Penthouse",
-      projectType: "Residential",
-      image: "https://images.unsplash.com/photo-1616137466211-f939a420be84?auto=format&fit=crop&q=80&w=1600",
-      description: "High-end finishes and bespoke furniture for an exclusive client.",
-      budget: 500000,
-      areaSqft: 3000,
-      location: "Bandra West",
-      city: "Mumbai",
-      state: "Maharashtra",
-      projectStatus: "COMPLETED",
-      designerName: "Emma Wilson",
-      startDate: "2023-11-01",
-      completionDate: "2024-02-28"
-    }
-  ];
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const response = await client.get(`${API_BASE_URL}/Project/${id}`);
+        setProject(response.data);
+      } catch (err) {
+        console.error("Error fetching project details:", err);
+        setError("Failed to load project details.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const project = projects.find(p => p.id === parseInt(id));
+    fetchProject();
+  }, [id]);
 
-  if (!project) {
+  if (loading) {
+    return (
+      <Container className="py-5 text-center">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </Container>
+    );
+  }
+
+  if (error || !project) {
     return (
       <Container className="py-5">
-        <h2>Project not found</h2>
-        <Button onClick={() => navigate('/')}>Back to Home</Button>
+        <Alert variant="danger">{error || "Project not found"}</Alert>
+        <Button onClick={() => navigate(-1)}>Go Back</Button>
       </Container>
     );
   }
 
   return (
     <Container className="py-5">
-      <Button variant="outline-secondary" className="mb-4" onClick={() => navigate('/')}>
+      <Button variant="outline-secondary" className="mb-4" onClick={() => navigate(-1)}>
         <ArrowLeft size={16} className="me-2" />
-        Back to Home
+        Back
       </Button>
 
       <Row>
         <Col lg={8}>
           <Card className="border-0 shadow-sm mb-4">
-            <Card.Img variant="top" src={project.image} style={{ height: '400px', objectFit: 'cover' }} />
+            {project.imageUrls && project.imageUrls.length > 0 ? (
+                <Carousel>
+                    {project.imageUrls.map((url, index) => (
+                        <Carousel.Item key={index}>
+                            <img
+                                className="d-block w-100"
+                                src={url}
+                                alt={`Project Image ${index + 1}`}
+                                style={{ height: '400px', objectFit: 'cover' }}
+                            />
+                        </Carousel.Item>
+                    ))}
+                </Carousel>
+            ) : (
+                <div style={{ height: '400px', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span className="text-muted">No images available</span>
+                </div>
+            )}
+            
             <Card.Body className="p-4">
               <div className="d-flex justify-content-between align-items-start mb-3">
                 <h1 className="fw-bold">{project.projectName}</h1>
-                <Badge bg="success" className="fs-6">{project.projectStatus}</Badge>
+                <Badge bg={project.projectStatus === 'COMPLETED' ? 'success' : project.projectStatus === 'IN_PROGRESS' ? 'primary' : 'warning'} className="fs-6">
+                    {project.projectStatus}
+                </Badge>
               </div>
               
               <div className="d-flex align-items-center text-muted mb-3">
@@ -90,7 +89,17 @@ const ProjectDetails = () => {
                 {project.location}, {project.city}, {project.state}
               </div>
 
-              <p className="lead mb-4">{project.description}</p>
+              <div className="mb-4">
+                <h5>Description</h5>
+                <p className="lead" style={{ fontSize: '1rem' }}>{project.statusMessage || "No description provided."}</p>
+              </div>
+              
+              {project.feedback && (
+                  <div className="mb-4">
+                    <h5>Feedback</h5>
+                    <p>{project.feedback}</p>
+                  </div>
+              )}
             </Card.Body>
           </Card>
         </Col>
@@ -122,27 +131,36 @@ const ProjectDetails = () => {
                   <User size={16} className="me-2 text-primary" />
                   <strong>Designer</strong>
                 </div>
-                <p className="mb-0 ms-4">{project.designerName}</p>
+                <p className="mb-0 ms-4">{project.designerName || "Not Assigned"}</p>
               </div>
 
-              <div className="mb-3">
-                <div className="d-flex align-items-center mb-2">
-                  <Calendar size={16} className="me-2 text-primary" />
-                  <strong>Start Date</strong>
-                </div>
-                <p className="mb-0 ms-4">{new Date(project.startDate).toLocaleDateString()}</p>
-              </div>
+              {project.startDate && (
+                  <div className="mb-3">
+                    <div className="d-flex align-items-center mb-2">
+                      <Calendar size={16} className="me-2 text-primary" />
+                      <strong>Start Date</strong>
+                    </div>
+                    <p className="mb-0 ms-4">{new Date(project.startDate).toLocaleDateString()}</p>
+                  </div>
+              )}
 
-              <div className="mb-3">
-                <div className="d-flex align-items-center mb-2">
-                  <Calendar size={16} className="me-2 text-primary" />
-                  <strong>Completion Date</strong>
-                </div>
-                <p className="mb-0 ms-4">{new Date(project.completionDate).toLocaleDateString()}</p>
-              </div>
+              {project.completionDate && (
+                  <div className="mb-3">
+                    <div className="d-flex align-items-center mb-2">
+                      <Calendar size={16} className="me-2 text-primary" />
+                      <strong>Completion Date</strong>
+                    </div>
+                    <p className="mb-0 ms-4">{new Date(project.completionDate).toLocaleDateString()}</p>
+                  </div>
+              )}
 
               <div className="mb-3">
                 <Badge bg="light" text="dark" className="fs-6">{project.projectType}</Badge>
+              </div>
+              
+              <div className="mt-4">
+                  <strong>Address:</strong>
+                  <p className="text-muted">{project.address}</p>
               </div>
             </Card.Body>
           </Card>

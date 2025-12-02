@@ -37,10 +37,20 @@ export function Login(){
             localStorage.setItem("type",res.data.status);
             localStorage.setItem("loggedinuser",res.data.username);
             localStorage.setItem("loggedinemail",res.data.email);
-            if(res.data.type==="admin") {
-                navigate("/admin")
+
+            if (res.data.status === 'customer') {
+                const customerData = {
+                    id: res.data.id,
+                    firstName: res.data.username,
+                    email: res.data.email
+                };
+                localStorage.setItem("customer", JSON.stringify(customerData));
+            }
+
+            if(res.data.status==="admin") {
+                navigate("/")
             }else{
-                navigate("/landing");
+                navigate("/");
             }
         }
         catch(error){

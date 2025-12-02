@@ -17,7 +17,7 @@ import com.interiocraft.backend.repository.CustomerRepository;
 import com.interiocraft.backend.repository.DesignerRepository;
 import com.interiocraft.backend.repository.ProjectRepository;
 
-import org.springframework.util.FileCopyUtils;
+
 import org.springframework.util.StringUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -49,7 +49,7 @@ public class ProjectServiceImpl implements ProjectService {
             .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
         
         Project project = modelMapper.map(projectDto, Project.class);
-        List<String> fileUrls = new ArrayList<>();
+        // List<String> fileUrls = new ArrayList<>(); // No longer needed as separate list
 
         try {
             Path uploadPath = Paths.get("uploads/");
@@ -57,12 +57,18 @@ public class ProjectServiceImpl implements ProjectService {
 
             // 2. Loop through every file
             for (MultipartFile file : files) {
-                String fileName = UUID.randomUUID().toString() + "_" + StringUtils.cleanPath(file.getOriginalFilename());
+                String originalFilename = file.getOriginalFilename();
+                String fileName = UUID.randomUUID().toString() + "_" + StringUtils.cleanPath(originalFilename != null ? originalFilename : "unknown");
                 Path filePath = uploadPath.resolve(fileName);
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
                 
                 // Add generated URL to the list
-                fileUrls.add("http://localhost:8080/images/" + fileName);
+                String fileUrl = "http://localhost:8080/images/" + fileName;
+                
+                com.interiocraft.backend.entities.ProjectImage projectImage = new com.interiocraft.backend.entities.ProjectImage();
+                projectImage.setImageName(fileName);
+                projectImage.setImageUrl(fileUrl);
+                project.addProjectImage(projectImage);
             }
 
         } catch (IOException e) {
@@ -72,25 +78,29 @@ public class ProjectServiceImpl implements ProjectService {
         
         System.out.println(project);
        
-            Designer designer = designerRepository.findById(projectDto.getDesignerId())
+        Long designerId = projectDto.getDesignerId();
+        if (designerId != null) {
+            Designer designer = designerRepository.findById(designerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Designer not found"));
             project.setDesigner(designer);
-        
-        if(designer.isAvailable()) {
-        	projectRepository.save(project);
-        	return new ApiResponse("Project created successfully", "Success");
+            
+            if(designer.isAvailable()) {
+                projectRepository.save(project);
+                return new ApiResponse("Project created successfully", "Success");
+            }
+            else {
+                return new ApiResponse("Designer is not Available", "Failure");
+            }
+        } else {
+             projectRepository.save(project);
+             return new ApiResponse("Project created successfully", "Success");
         }
-        else {
-        	return new ApiResponse("Designer is not Available", "Failure");
-        }
-        
-        
-        
     }
     
     @Override
     @Transactional(readOnly = true)
     public ProjectResponseDto getProjectById(Long id) {
+        if (id == null) throw new IllegalArgumentException("ID cannot be null");
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         return mapToResponseDto(project);
@@ -99,13 +109,15 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public List<ProjectResponseDto> getAllProjects() {
-        return projectRepository.findAll().stream()
+        return projectRepository.findAllWithDetails().stream()
             .map(this::mapToResponseDto)
+            .filter(dto -> dto != null)
             .collect(Collectors.toList());
     }
     
     @Override
     public ApiResponse updateProject(Long id, ProjectDto projectDto) {
+        if (id == null) throw new IllegalArgumentException("ID cannot be null");
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         
@@ -127,8 +139,9 @@ public class ProjectServiceImpl implements ProjectService {
         project.setCity(projectDto.getCity());
         project.setState(projectDto.getState());
         
-        if (projectDto.getDesignerId() != null) {
-            Designer designer = designerRepository.findById(projectDto.getDesignerId())
+        Long designerId = projectDto.getDesignerId();
+        if (designerId != null) {
+            Designer designer = designerRepository.findById(designerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Designer not found"));
             project.setDesigner(designer);
         }
@@ -139,6 +152,7 @@ public class ProjectServiceImpl implements ProjectService {
     
     @Override
     public ApiResponse deleteProject(Long id) {
+        if (id == null) throw new IllegalArgumentException("ID cannot be null");
         if (!projectRepository.existsById(id)) {
             throw new ResourceNotFoundException("Project not found");
         }
@@ -152,44 +166,66 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectStatus projectStatus = ProjectStatus.valueOf(status.toUpperCase());
         return projectRepository.findByProjectStatus(projectStatus).stream()
             .map(this::mapToResponseDto)
+            .filter(dto -> dto != null)
             .collect(Collectors.toList());
     }
     
     @Override
     @Transactional(readOnly = true)
     public List<ProjectResponseDto> getProjectsByCustomer(Long customerId) {
+        if (customerId == null) throw new IllegalArgumentException("Customer ID cannot be null");
         return projectRepository.findByCustomerId(customerId).stream()
             .map(this::mapToResponseDto)
+            .filter(dto -> dto != null)
             .collect(Collectors.toList());
     }
     
     private ProjectResponseDto mapToResponseDto(Project project) {
-        ProjectResponseDto dto = new ProjectResponseDto();
-        dto.setId(project.getId());
-        dto.setProjectName(project.getProjectName());
-        dto.setCustomerId(project.getCustomer().getId());
-        dto.setCustomerName(project.getCustomer().getFirstName() + " " + project.getCustomer().getLastName());
-        
-        if (project.getDesigner() != null) {
-            dto.setDesignerId(project.getDesigner().getId());
-            dto.setDesignerName(project.getDesigner().getFullName());
+        try {
+            ProjectResponseDto dto = new ProjectResponseDto();
+            dto.setId(project.getId());
+            dto.setProjectName(project.getProjectName());
+            
+            if (project.getCustomer() != null) {
+                dto.setCustomerId(project.getCustomer().getId());
+                dto.setCustomerName(project.getCustomer().getFirstName() + " " + project.getCustomer().getLastName());
+            }
+            
+            if (project.getDesigner() != null) {
+                dto.setDesignerId(project.getDesigner().getId());
+                dto.setDesignerName(project.getDesigner().getFullName());
+            }
+            
+            dto.setLocation(project.getLocation());
+            dto.setBudget(project.getBudget());
+            
+            if (project.getProjectStatus() != null) {
+                dto.setProjectStatus(project.getProjectStatus().toString());
+            }
+            
+            dto.setStatusMessage(project.getStatusMessage());
+            dto.setFeedback(project.getFeedback());
+            dto.setProjectType(project.getProjectType());
+            dto.setAreaSqft(project.getAreaSqft());
+            dto.setStartDate(project.getStartDate());
+            dto.setCompletionDate(project.getCompletionDate());
+            dto.setAddress(project.getAddress());
+            dto.setCity(project.getCity());
+            dto.setState(project.getState());
+            dto.setCreatedOn(project.getCreatedOn());
+            dto.setLastUpdated(project.getLastUpdated());
+            
+            if (project.getImages() != null) {
+                dto.setImageUrls(project.getImages().stream()
+                    .map(com.interiocraft.backend.entities.ProjectImage::getImageUrl)
+                    .collect(Collectors.toList()));
+            }
+            
+            return dto;
+        } catch (Exception e) {
+            System.err.println("Error mapping project with ID: " + project.getId());
+            e.printStackTrace();
+            return null;
         }
-        
-        dto.setLocation(project.getLocation());
-        dto.setBudget(project.getBudget());
-        dto.setProjectStatus(project.getProjectStatus().toString());
-        dto.setStatusMessage(project.getStatusMessage());
-        dto.setFeedback(project.getFeedback());
-        dto.setProjectType(project.getProjectType());
-        dto.setAreaSqft(project.getAreaSqft());
-        dto.setStartDate(project.getStartDate());
-        dto.setCompletionDate(project.getCompletionDate());
-        dto.setAddress(project.getAddress());
-        dto.setCity(project.getCity());
-        dto.setState(project.getState());
-        dto.setCreatedAt(project.getCreatedOn());
-        dto.setUpdatedAt(project.getLastUpdated());
-        
-        return dto;
     }
 }

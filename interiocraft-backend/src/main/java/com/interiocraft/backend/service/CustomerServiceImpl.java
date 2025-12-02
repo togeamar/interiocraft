@@ -65,6 +65,7 @@ public class CustomerServiceImpl implements CustomerService {
 		String firstName;
 		String email;
 		String status;
+		Long id;
 		Authentication authenticatedUser = authenticationManager.authenticate(authToken);
 		Object principal=authenticatedUser.getPrincipal();
 		System.out.println(principal);
@@ -72,12 +73,14 @@ public class CustomerServiceImpl implements CustomerService {
 		    Customer c = (Customer) principal;
 		    firstName = c.getFirstName();
 		    email = c.getEmail();
+		    id = c.getId();
 		    status = "customer";
 		} 
 		else if (principal instanceof Admin) {
 		    Admin a = (Admin) principal;
 		    firstName = a.getFirstName();
 		    email = a.getEmail();
+		    id = a.getId();
 		    status = "admin";
 		} 
 		else {
@@ -85,10 +88,39 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 		
 		String jwt=jwtUtils.generateToken((UserDetails) principal);
-		return new LoginResponse("admin logged in successfully",status,jwt,firstName,email);
+		return new LoginResponse("admin logged in successfully",status,jwt,firstName,email, id);
 		
 		
 	}
 	
 	
+	@Override
+	public java.util.List<Customer> getAllCustomers() {
+		return customerRepo.findAll();
+	}
+
+	@Override
+	public ApiResponse updateCustomer(Long id, com.interiocraft.backend.dto.CustomerUpdateDto dto) {
+		if (id == null) throw new IllegalArgumentException("ID cannot be null");
+		Customer customer = customerRepo.findById(id)
+				.orElseThrow(() -> new com.interiocraft.backend.custom_exception.ResourceNotFoundException("Customer not found"));
+		
+		customer.setFirstName(dto.getFirstName());
+		customer.setLastName(dto.getLastName());
+		customer.setEmail(dto.getEmail());
+		customer.setPhoneNumber(dto.getPhoneNumber());
+		
+		customerRepo.save(customer);
+		return new ApiResponse("Customer updated successfully", "Success");
+	}
+
+	@Override
+	public ApiResponse deleteCustomer(Long id) {
+		if (id == null) throw new IllegalArgumentException("ID cannot be null");
+		if (!customerRepo.existsById(id)) {
+			throw new com.interiocraft.backend.custom_exception.ResourceNotFoundException("Customer not found");
+		}
+		customerRepo.deleteById(id);
+		return new ApiResponse("Customer deleted successfully", "Success");
+	}
 }

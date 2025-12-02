@@ -66,6 +66,7 @@ private final AuthenticationManager authenticationManager;
 		String firstName;
 		String email;
 		String status;
+		Long id;
 		Authentication authenticatedAdmin = authenticationManager.authenticate(authToken);
 		Object principal=authenticatedAdmin.getPrincipal();
 		System.out.println(principal);
@@ -73,12 +74,14 @@ private final AuthenticationManager authenticationManager;
 		    Customer c = (Customer) principal;
 		    firstName = c.getFirstName();
 		    email = c.getEmail();
+		    id = c.getId();
 		    status = "customer";
 		} 
 		else if (principal instanceof Admin) {
 		    Admin a = (Admin) principal;
 		    firstName = a.getFirstName();
 		    email = a.getEmail();
+		    id = a.getId();
 		    status = "admin";
 		} 
 		else {
@@ -86,7 +89,7 @@ private final AuthenticationManager authenticationManager;
 		}
 		
 		String jwt=jwtutil.generateToken((UserDetails) principal);
-		return new LoginResponse("admin logged in successfully",status,jwt,firstName,email);
+		return new LoginResponse("admin logged in successfully",status,jwt,firstName,email, id);
 	}
 
 }

@@ -8,6 +8,8 @@ import { Login } from "./components/Pages/Login";
 import { Register } from "./components/Pages/Register";
 import BudgetEstimator from "./components/Pages/BudgetEstimator";
 import { Consultation } from "./components/Pages/Consultation";
+import AdminDashboard from "./components/Pages/AdminDashboard";
+import CustomerDashboard from "./components/Pages/CustomerDashboard";
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
           <Route path="signup" element={<Register />} />
           <Route path="budget-estimator" element={<BudgetEstimator />} />
           <Route path="consultation" element={<Consultation />} />
+          <Route path="customer-dashboard" element={<CustomerDashboard />} />
+          <Route path="admin-dashboard" element={<AdminDashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>

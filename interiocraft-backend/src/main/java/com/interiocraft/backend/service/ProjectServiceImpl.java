@@ -1,7 +1,9 @@
 package com.interiocraft.backend.service;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.interiocraft.backend.custom_exception.ResourceNotFoundException;
 import com.interiocraft.backend.dto.ApiResponse;
@@ -15,9 +17,19 @@ import com.interiocraft.backend.repository.CustomerRepository;
 import com.interiocraft.backend.repository.DesignerRepository;
 import com.interiocraft.backend.repository.ProjectRepository;
 
+import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
+
 import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,36 +40,52 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final CustomerRepository customerRepository;
     private final DesignerRepository designerRepository;
+    private final ModelMapper modelMapper;
     
     @Override
-    public ApiResponse createProject(ProjectDto projectDto) {
-        Customer customer = customerRepository.findById(projectDto.getCustomerId())
+    public ApiResponse createProject(String customerEmail,ProjectDto projectDto,MultipartFile[] files) {
+    	System.out.println("in create project");
+        Customer customer = customerRepository.findByEmail(customerEmail)
             .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
         
-        Project project = new Project();
-        project.setProjectName(projectDto.getProjectName());
+        Project project = modelMapper.map(projectDto, Project.class);
+        List<String> fileUrls = new ArrayList<>();
+
+        try {
+            Path uploadPath = Paths.get("uploads/");
+            if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+
+            // 2. Loop through every file
+            for (MultipartFile file : files) {
+                String fileName = UUID.randomUUID().toString() + "_" + StringUtils.cleanPath(file.getOriginalFilename());
+                Path filePath = uploadPath.resolve(fileName);
+                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                
+                // Add generated URL to the list
+                fileUrls.add("http://localhost:8080/images/" + fileName);
+            }
+
+        } catch (IOException e) {
+            return new ApiResponse("upload failed", "Failure");
+        }
         project.setCustomer(customer);
-        project.setLocation(projectDto.getLocation());
-        project.setBudget(projectDto.getBudget());
-        project.setProjectStatus(ProjectStatus.REQUESTED);
-        project.setStatusMessage(projectDto.getStatusMessage());
-        project.setFeedback(projectDto.getFeedback());
-        project.setProjectType(projectDto.getProjectType());
-        project.setAreaSqft(projectDto.getAreaSqft());
-        project.setStartDate(projectDto.getStartDate());
-        project.setCompletionDate(projectDto.getCompletionDate());
-        project.setAddress(projectDto.getAddress());
-        project.setCity(projectDto.getCity());
-        project.setState(projectDto.getState());
         
-        if (projectDto.getDesignerId() != null) {
+        System.out.println(project);
+       
             Designer designer = designerRepository.findById(projectDto.getDesignerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Designer not found"));
             project.setDesigner(designer);
+        
+        if(designer.isAvailable()) {
+        	projectRepository.save(project);
+        	return new ApiResponse("Project created successfully", "Success");
+        }
+        else {
+        	return new ApiResponse("Designer is not Available", "Failure");
         }
         
-        projectRepository.save(project);
-        return new ApiResponse("Project created successfully", "Success");
+        
+        
     }
     
     @Override
@@ -144,7 +172,7 @@ public class ProjectServiceImpl implements ProjectService {
         
         if (project.getDesigner() != null) {
             dto.setDesignerId(project.getDesigner().getId());
-            dto.setDesignerName(project.getDesigner().getFirstName() + " " + project.getDesigner().getLastName());
+            dto.setDesignerName(project.getDesigner().getFullName());
         }
         
         dto.setLocation(project.getLocation());
@@ -159,8 +187,8 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setAddress(project.getAddress());
         dto.setCity(project.getCity());
         dto.setState(project.getState());
-        dto.setCreatedAt(project.getCreatedAt());
-        dto.setUpdatedAt(project.getUpdatedAt());
+        dto.setCreatedAt(project.getCreatedOn());
+        dto.setUpdatedAt(project.getLastUpdated());
         
         return dto;
     }

@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class InteriocraftBackendApplication {
 
 	public static void main(String[] args) {
+		 System.out.println("========================================");
+	        System.out.println("APPLICATION STARTING - NEW VERSION");
+	        System.out.println("========================================");
 		SpringApplication.run(InteriocraftBackendApplication.class, args);
 	}
 

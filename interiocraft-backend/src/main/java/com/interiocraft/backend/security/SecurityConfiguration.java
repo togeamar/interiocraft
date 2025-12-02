@@ -48,6 +48,7 @@ public class SecurityConfiguration {
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
                     "/customer/signin",
+                    "/customer/test",
                     "/customer/signup",
                     "/Admin/signin",
                     "/Admin/AddAdmin"

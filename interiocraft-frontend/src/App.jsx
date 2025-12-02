@@ -27,6 +27,8 @@ function App() {
           <Route path="customer-dashboard" element={<CustomerDashboard />} />
           <Route path="admin-dashboard" element={<AdminDashboard />} />
         </Route>
+
+        <Route path="/consultations" element={<ConsultationRequests />} />
       </Routes>
     </BrowserRouter>
   );

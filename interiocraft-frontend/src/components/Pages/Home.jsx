@@ -1,7 +1,8 @@
-import { Button, Carousel, Container, Row, Col, Card,Badge } from "react-bootstrap";
+import { useNavigate } from 'react-router-dom';
+import { Button, Carousel, Container, Row, Col, Card, Badge } from "react-bootstrap";
 import { FaAward, FaUsers, FaClock } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { Award, Users, Clock, ArrowRight,MapPin } from 'lucide-react';
+import { Award, Users, Clock, ArrowRight, MapPin } from 'lucide-react';
 import heroBg1 from "../../assets/images/hero-bg-1.jpg";
 import heroBg2 from "../../assets/images/hero-bg-2.jpg";
 import heroBg3 from "../../assets/images/hero-bg-3.jpg";
@@ -9,6 +10,7 @@ import heroBg4 from "../../assets/images/hero-bg-4.jpg";
 import "./Home.css";
 
 export function Home() {
+  const navigate = useNavigate();
 
   const heroImages = {
     bg1: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1600",
@@ -41,24 +43,58 @@ export function Home() {
 
   const projects = [
     {
-      title: "Modern Minimalist Loft",
-      category: "Residential",
+      id: 1,
+      projectName: "Modern Minimalist Loft",
+      projectType: "Residential",
       image: heroImages.bg1,
-      description: "A clean, airy renovation maximizing natural light and open space."
+      description: "A clean, airy renovation maximizing natural light and open space.",
+      budget: 250000,
+      areaSqft: 1500,
+      location: "Downtown Mumbai",
+      city: "Mumbai",
+      state: "Maharashtra",
+      projectStatus: "COMPLETED",
+      designerName: "Sarah Johnson",
+      startDate: "2024-01-15",
+      completionDate: "2024-03-20"
     },
     {
-      title: "Eco-Friendly Office",
-      category: "Commercial",
+      id: 2,
+      projectName: "Eco-Friendly Office",
+      projectType: "Commercial",
       image: heroImages.bg4,
-      description: "Sustainable workspace design incorporating biophilic elements."
+      description: "Sustainable workspace design incorporating biophilic elements.",
+      budget: 180000,
+      areaSqft: 2000,
+      location: "Tech Park Bangalore",
+      city: "Bangalore",
+      state: "Karnataka",
+      projectStatus: "COMPLETED",
+      designerName: "Mike Chen",
+      startDate: "2024-02-01",
+      completionDate: "2024-04-15"
     },
     {
-      title: "Luxury Penthouse",
-      category: "Residential",
+      id: 3,
+      projectName: "Luxury Penthouse",
+      projectType: "Residential",
       image: heroImages.bg3,
-      description: "High-end finishes and bespoke furniture for an exclusive client."
+      description: "High-end finishes and bespoke furniture for an exclusive client.",
+      budget: 500000,
+      areaSqft: 3000,
+      location: "Bandra West",
+      city: "Mumbai",
+      state: "Maharashtra",
+      projectStatus: "COMPLETED",
+      designerName: "Emma Wilson",
+      startDate: "2023-11-01",
+      completionDate: "2024-02-28"
     }
   ];
+
+  const handleViewProject = (projectId) => {
+    navigate(`/project/${projectId}`);
+  };
 
 
   return (
@@ -142,9 +178,9 @@ export function Home() {
               <Col lg={4} md={6} key={project.id}>
                 <Card className="h-100 border-0 shadow-sm project-card overflow-hidden">
                   <div className="project-img-wrapper position-relative">
-                    <Card.Img variant="top" src={project.image} alt={project.title} />
+                    <Card.Img variant="top" src={project.image} alt={project.projectName} />
                     <Badge bg="light" text="dark" className="position-absolute top-0 end-0 m-3 shadow-sm">
-                      {project.category}
+                      {project.projectType}
                     </Badge>
                   </div>
                   <Card.Body className="p-4">
@@ -152,11 +188,16 @@ export function Home() {
                       <MapPin className="me-2 text-primary" size={16} />
                       {project.location}
                     </div>
-                    <Card.Title className="fw-bold fs-5 mb-3">{project.title}</Card.Title>
+                    <Card.Title className="fw-bold fs-5 mb-3">{project.projectName}</Card.Title>
                     <Card.Text className="text-muted small mb-4">
                       {project.description}
                     </Card.Text>
-                    <Button variant="outline-primary" size="sm" className="w-100 fw-semibold">
+                    <Button 
+                      variant="outline-primary" 
+                      size="sm" 
+                      className="w-100 fw-semibold"
+                      onClick={() => handleViewProject(project.id)}
+                    >
                       View Project <ArrowRight className="ms-2" size={16} />
                     </Button>
                   </Card.Body>
@@ -168,6 +209,8 @@ export function Home() {
           
         </Container>
       </section>
+
+
     </>
   );
 }

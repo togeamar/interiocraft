@@ -1,17 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Row, Col, Nav, Tab, Table, Button, Modal, Form, Badge, Card } from 'react-bootstrap';
+import client from '../../services/client';
+import { API_BASE_URL } from '../../../constants/ApiConstants';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('projects');
   const [designers, setDesigners] = useState([]);
-  const [projects, setProjects] = useState([
-    { id: 1, projectName: 'Modern Living Room', customerName: 'John Doe', budget: 150000, projectStatus: 'IN_PROGRESS', areaSqft: 1200 },
-    { id: 2, projectName: 'Kitchen Renovation', customerName: 'Alice Johnson', budget: 80000, projectStatus: 'REQUESTED', areaSqft: 800 },
-    { id: 3, projectName: 'Bedroom Design', customerName: 'Bob Wilson', budget: 120000, projectStatus: 'COMPLETED', areaSqft: 1000 }
-  ]);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'projects') {
+      fetchProjects();
+    }
+  }, [activeTab]);
+
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const response = await client.get(`${API_BASE_URL}/Project/projects`);
+      console.log('Fetched projects:', response.data);
+      setProjects(response.data || []);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showDesignerModal, setShowDesignerModal] = useState(false);
-  const [projectFormData, setProjectFormData] = useState({ projectName: '', customerName: '', budget: '', areaSqft: '', location: '' });
+  const [projectFormData, setProjectFormData] = useState({ 
+    projectName: '', 
+    designerId: '', 
+    location: '', 
+    budget: '', 
+    projectType: '', 
+    areaSqft: '', 
+    address: '', 
+    city: '', 
+    state: '' 
+  });
   const [designerFormData, setDesignerFormData] = useState({ firstName: '', lastName: '', email: '', phoneNumber: '', experienceYears: '' });
 
   const getStatusBadge = (status) => {
@@ -19,22 +48,47 @@ export default function AdminDashboard() {
     return <Badge bg={variants[status]}>{status}</Badge>;
   };
 
-  const handleStatusUpdate = (projectId, newStatus) => {
-    setProjects(projects.map(p => p.id === projectId ? {...p, projectStatus: newStatus} : p));
+  const handleStatusUpdate = async (projectId, newStatus) => {
+    try {
+      const updateData = { projectStatus: newStatus };
+      await client.put(`${API_BASE_URL}/Project/${projectId}`, updateData);
+      await fetchProjects();
+    } catch (error) {
+      console.error('Error updating project status:', error);
+    }
   };
 
-  const handleProjectSubmit = (e) => {
+  const handleProjectSubmit = async (e) => {
     e.preventDefault();
-    const newProject = {
-      id: projects.length + 1,
-      ...projectFormData,
-      budget: parseInt(projectFormData.budget),
-      areaSqft: parseInt(projectFormData.areaSqft),
-      projectStatus: 'REQUESTED'
-    };
-    setProjects([...projects, newProject]);
-    setShowProjectModal(false);
-    setProjectFormData({ projectName: '', customerName: '', budget: '', areaSqft: '', location: '' });
+    try {
+      setLoading(true);
+      const projectData = {
+        ...projectFormData,
+        budget: parseFloat(projectFormData.budget),
+        areaSqft: parseFloat(projectFormData.areaSqft),
+        designerId: parseInt(projectFormData.designerId) || 1
+      };
+      
+      const adminEmail = localStorage.getItem('adminEmail') || 'admin@interiocraft.com';
+      await client.post(`${API_BASE_URL}/Project/addProject/${adminEmail}`, projectData);
+      await fetchProjects();
+      setShowProjectModal(false);
+      setProjectFormData({ 
+        projectName: '', 
+        designerId: '', 
+        location: '', 
+        budget: '', 
+        projectType: '', 
+        areaSqft: '', 
+        address: '', 
+        city: '', 
+        state: '' 
+      });
+    } catch (error) {
+      console.error('Error adding project:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDesignerSubmit = (e) => {
@@ -55,26 +109,122 @@ export default function AdminDashboard() {
         <h4 style={{ color: 'var(--primary-color)' }}>Project Management</h4>
         <Button style={{ backgroundColor: 'var(--primary-color)', borderColor: 'var(--primary-color)' }} onClick={() => setShowProjectModal(true)}>Add Project</Button>
       </div>
-      <Table striped bordered hover>
-        <thead style={{ backgroundColor: 'var(--light-bg)' }}>
-          <tr><th>ID</th><th>Name</th><th>Customer</th><th>Status</th><th>Budget</th><th>Actions</th></tr>
-        </thead>
-        <tbody>
-          {projects.map(project => (
-            <tr key={project.id}>
-              <td>{project.id}</td>
-              <td>{project.projectName}</td>
-              <td>{project.customerName}</td>
-              <td>{getStatusBadge(project.projectStatus)}</td>
-              <td>₹{project.budget?.toLocaleString()}</td>
-              <td>
-                <Button size="sm" variant="outline-primary" className="me-2">Edit</Button>
-                <Button size="sm" variant="outline-danger">Delete</Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      
+      <Row className="mb-4">
+        <Col md={3}>
+          <Card className="text-center" 
+                style={{ 
+                  borderTop: '4px solid #ffc107', 
+                  cursor: 'pointer', 
+                  transition: 'all 0.3s ease',
+                  backgroundColor: selectedStatus === 'REQUESTED' ? '#fff3cd' : 'white'
+                }} 
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                onClick={() => setSelectedStatus(selectedStatus === 'REQUESTED' ? null : 'REQUESTED')}>
+            <Card.Body>
+              <h6 style={{ color: '#ffc107' }}>Requested</h6>
+              <h4>{projects.filter(p => p.projectStatus === 'REQUESTED' || p.projectStatus === 'Requested').length}</h4>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={3}>
+          <Card className="text-center" 
+                style={{ 
+                  borderTop: '4px solid #007bff', 
+                  cursor: 'pointer', 
+                  transition: 'all 0.3s ease',
+                  backgroundColor: selectedStatus === 'IN_PROGRESS' ? '#cce5ff' : 'white'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                onClick={() => setSelectedStatus(selectedStatus === 'IN_PROGRESS' ? null : 'IN_PROGRESS')}>
+            <Card.Body>
+              <h6 style={{ color: '#007bff' }}>In Progress</h6>
+              <h4>{projects.filter(p => p.projectStatus === 'IN_PROGRESS' || p.projectStatus === 'In Progress').length}</h4>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={3}>
+          <Card className="text-center" 
+                style={{ 
+                  borderTop: '4px solid #28a745', 
+                  cursor: 'pointer', 
+                  transition: 'all 0.3s ease',
+                  backgroundColor: selectedStatus === 'COMPLETED' ? '#d4edda' : 'white'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                onClick={() => setSelectedStatus(selectedStatus === 'COMPLETED' ? null : 'COMPLETED')}>
+            <Card.Body>
+              <h6 style={{ color: '#28a745' }}>Completed</h6>
+              <h4>{projects.filter(p => p.projectStatus === 'COMPLETED' || p.projectStatus === 'Completed').length}</h4>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={3}>
+          <Card className="text-center" 
+                style={{ 
+                  borderTop: '4px solid #dc3545', 
+                  cursor: 'pointer', 
+                  transition: 'all 0.3s ease',
+                  backgroundColor: selectedStatus === 'CANCELLED' ? '#f8d7da' : 'white'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                onClick={() => setSelectedStatus(selectedStatus === 'CANCELLED' ? null : 'CANCELLED')}>
+            <Card.Body>
+              <h6 style={{ color: '#dc3545' }}>Cancelled</h6>
+              <h4>{projects.filter(p => p.projectStatus === 'CANCELLED' || p.projectStatus === 'Cancelled').length}</h4>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {selectedStatus && (() => {
+        const statusProjects = projects.filter(p => 
+          p.projectStatus === selectedStatus || 
+          p.projectStatus === selectedStatus.toLowerCase() ||
+          p.projectStatus === selectedStatus.charAt(0) + selectedStatus.slice(1).toLowerCase()
+        );
+        if (statusProjects.length === 0) return null;
+        
+        return (
+          <div className="mb-4">
+            <h5 style={{ color: 'var(--primary-color)' }} className="mb-3">
+              {selectedStatus.replace('_', ' ')} Projects ({statusProjects.length})
+            </h5>
+            <Table striped bordered hover>
+              <thead style={{ backgroundColor: 'var(--light-bg)' }}>
+                <tr><th>ID</th><th>Name</th><th>Customer</th><th>Budget</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                {statusProjects.map(project => (
+                  <tr key={project.id}>
+                    <td>{project.id}</td>
+                    <td>{project.projectName}</td>
+                    <td>{project.customerName}</td>
+                    <td>₹{project.budget?.toLocaleString()}</td>
+                    <td>
+                      {selectedStatus === 'REQUESTED' && (
+                        <>
+                          <Button size="sm" variant="success" className="me-2" onClick={() => handleStatusUpdate(project.id, 'IN_PROGRESS')}>Accept</Button>
+                          <Button size="sm" variant="danger" className="me-2" onClick={() => handleStatusUpdate(project.id, 'CANCELLED')}>Reject</Button>
+                        </>
+                      )}
+                      {selectedStatus === 'IN_PROGRESS' && (
+                        <Button size="sm" variant="success" className="me-2" onClick={() => handleStatusUpdate(project.id, 'COMPLETED')}>Complete</Button>
+                      )}
+                      <Button size="sm" variant="outline-primary" className="me-2">Edit</Button>
+                      <Button size="sm" variant="outline-danger">Delete</Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        );
+      })()}
     </div>
   );
 

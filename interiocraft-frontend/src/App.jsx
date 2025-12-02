@@ -10,6 +10,7 @@ import BudgetEstimator from "./components/Pages/BudgetEstimator";
 import { Consultation } from "./components/Pages/Consultation";
 import AdminDashboard from "./components/Pages/AdminDashboard";
 import CustomerDashboard from "./components/Pages/CustomerDashboard";
+import ProjectDetails from "./components/Pages/ProjectDetails";
 
 function App() {
   return (
@@ -26,9 +27,10 @@ function App() {
           <Route path="consultation" element={<Consultation />} />
           <Route path="customer-dashboard" element={<CustomerDashboard />} />
           <Route path="admin-dashboard" element={<AdminDashboard />} />
+          <Route path="project/:id" element={<ProjectDetails />} />
         </Route>
 
-        <Route path="/consultations" element={<ConsultationRequests />} />
+        {/* <Route path="/consultations" element={<ConsultationRequests />} /> */}
       </Routes>
     </BrowserRouter>
   );

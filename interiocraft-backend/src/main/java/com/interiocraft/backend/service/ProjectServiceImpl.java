@@ -12,6 +12,7 @@ import com.interiocraft.backend.dto.ProjectResponseDto;
 import com.interiocraft.backend.entities.Customer;
 import com.interiocraft.backend.entities.Designer;
 import com.interiocraft.backend.entities.Project;
+import com.interiocraft.backend.entities.ProjectImage;
 import com.interiocraft.backend.entities.ProjectStatus;
 import com.interiocraft.backend.repository.CustomerRepository;
 import com.interiocraft.backend.repository.DesignerRepository;
@@ -49,22 +50,28 @@ public class ProjectServiceImpl implements ProjectService {
             .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
         
         Project project = modelMapper.map(projectDto, Project.class);
-        List<String> fileUrls = new ArrayList<>();
+        project.setProjectStatus(ProjectStatus.REQUESTED);
 
         try {
-            Path uploadPath = Paths.get("uploads/");
+        	Path uploadPath = Paths.get("uploads/");
             if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
 
-            // 2. Loop through every file
             for (MultipartFile file : files) {
-                String fileName = UUID.randomUUID().toString() + "_" + StringUtils.cleanPath(file.getOriginalFilename());
+                String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+                String fileName = UUID.randomUUID().toString() + "_" + originalFilename;
                 Path filePath = uploadPath.resolve(fileName);
+                
+                
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
                 
-                // Add generated URL to the list
-                fileUrls.add("http://localhost:8080/images/" + fileName);
+                ProjectImage projectImage = new ProjectImage();
+                projectImage.setImageName(originalFilename);
+                projectImage.setImageUrl("http://localhost:8080/images/" + fileName);
+                
+                
+                project.addProjectImage(projectImage); 
+                
             }
-
         } catch (IOException e) {
             return new ApiResponse("upload failed", "Failure");
         }

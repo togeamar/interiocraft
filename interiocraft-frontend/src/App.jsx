@@ -28,7 +28,7 @@ function App() {
           <Route path="admin-dashboard" element={<AdminDashboard />} />
         </Route>
 
-        <Route path="/consultations" element={<ConsultationRequests />} />
+        
       </Routes>
     </BrowserRouter>
   );

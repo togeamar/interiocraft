@@ -37,10 +37,10 @@ export function Login(){
             localStorage.setItem("type",res.data.status);
             localStorage.setItem("loggedinuser",res.data.username);
             localStorage.setItem("loggedinemail",res.data.email);
-            if(res.data.type==="admin") {
-                navigate("/admin")
+            if(res.data.status==="admin") {
+                navigate("/admin-dashboard")
             }else{
-                navigate("/landing");
+                navigate("/customer-dashboard");
             }
         }
         catch(error){

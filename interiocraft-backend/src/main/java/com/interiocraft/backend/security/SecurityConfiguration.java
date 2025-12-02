@@ -51,7 +51,9 @@ public class SecurityConfiguration {
                     "/customer/test",
                     "/customer/signup",
                     "/Admin/signin",
-                    "/Admin/AddAdmin"
+                    "/Admin/AddAdmin",
+                    "/Project/addProject/{email}",
+                    "/images/**"
                 ).permitAll()
                 
                 

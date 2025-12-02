@@ -9,7 +9,7 @@ import { Register } from "./components/Pages/Register";
 import BudgetEstimator from "./components/Pages/BudgetEstimator";
 import { Consultation } from "./components/Pages/Consultation";
 import ConsultationRequests from "./components/ConsultationRequests";
-import { CustomerDashboard } from "./components/Pages/CustomerDashboard";  // <-- ADD THIS
+import CustomerDashboard from "./components/Pages/CustomerDashboard";  // <-- ADD THIS
 
 function App() {
   return (

@@ -52,6 +52,9 @@ export function NavigationBar() {
               <Button as={Link} to="/consultation" size="sm" style={{backgroundColor: 'var(--primary-color)', borderColor: 'var(--primary-color)', color: 'white'}} onMouseEnter={(e) => {e.target.style.backgroundColor = 'var(--secondary-color)';}} onMouseLeave={(e) => {e.target.style.backgroundColor = 'var(--primary-color)'}}>
                 Consultation
               </Button>
+              <Button as={Link} to="/dashboard" size="sm" style={{borderColor: 'var(--primary-color)', color: 'var(--primary-color)', backgroundColor: 'transparent', padding: '0.25rem 0.75rem'}} onMouseEnter={(e) => {e.target.style.backgroundColor = 'var(--primary-color)'; e.target.style.color = 'white';}} onMouseLeave={(e) => {e.target.style.backgroundColor = 'transparent'; e.target.style.color = 'var(--primary-color)'}}>
+                Dashboard
+              </Button>
             </div>
           </Offcanvas.Body>
         </Navbar.Offcanvas>

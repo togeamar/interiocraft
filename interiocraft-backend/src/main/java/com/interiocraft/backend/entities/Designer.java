@@ -44,6 +44,7 @@ public class Designer extends BaseEntity {
     @Column(name = "total_projects_completed")
     private Integer totalProjectsCompleted = 0;
     
+    private boolean isAvailable;
     
     @OneToOne(mappedBy="designer")
     private Project currentProject;

@@ -67,4 +67,15 @@ public class Project extends BaseEntity {
     
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectImage> images = new ArrayList<>();
+    
+    public void addProjectImage(ProjectImage projectImage) {
+        this.images.add(projectImage);
+        projectImage.setProject(this);
+    }
+
+    public void removeProject(ProjectImage projectImage) {
+        this.images.remove(projectImage);
+        projectImage.setProject(null);
+    }
+
 }

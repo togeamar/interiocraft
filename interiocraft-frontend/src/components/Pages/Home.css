@@ -1,0 +1,39 @@
+.project-card {
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+.project-card:hover {
+transform: translateY(-10px);
+box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+}
+.project-img-wrapper {
+overflow: hidden;
+height: 250px;
+}
+.project-img-wrapper img {
+transition: transform 0.5s ease;
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+.project-card:hover .project-img-wrapper img {
+transform: scale(1.1);
+}
+
+.featured{
+    color: var(--primary-color);
+    transition: transform 0.5s ease;
+    
+}
+.featured:hover{
+    transform: scale(1.5);
+    
+}
+.recent{
+    
+    transition: transform 0.5s ease;
+    
+}
+.recent:hover{
+    transform: scale(1.2);
+    
+}

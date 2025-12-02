@@ -14,6 +14,7 @@ import com.interiocraft.backend.dto.ApiResponse;
 import com.interiocraft.backend.dto.LoginResponse;
 import com.interiocraft.backend.dto.CustomerRegDto;
 import com.interiocraft.backend.dto.CustomerSignInDto;
+import com.interiocraft.backend.entities.Admin;
 import com.interiocraft.backend.entities.Customer;
 import com.interiocraft.backend.repository.CustomerRepository;
 import com.interiocraft.backend.security.JwtUtils;
@@ -61,13 +62,30 @@ public class CustomerServiceImpl implements CustomerService {
 	                signdto.getPassword()  
 	            );
 		
+		String firstName;
+		String email;
+		String status;
 		Authentication authenticatedUser = authenticationManager.authenticate(authToken);
+		Object principal=authenticatedUser.getPrincipal();
+		System.out.println(principal);
+		if (principal instanceof Customer) {
+		    Customer c = (Customer) principal;
+		    firstName = c.getFirstName();
+		    email = c.getEmail();
+		    status = "customer";
+		} 
+		else if (principal instanceof Admin) {
+		    Admin a = (Admin) principal;
+		    firstName = a.getFirstName();
+		    email = a.getEmail();
+		    status = "admin";
+		} 
+		else {
+		    throw new IllegalStateException("Unknown user type: " + principal.getClass());
+		}
 		
-		Customer userdetails=(Customer) authenticatedUser.getPrincipal();
-		String jwt = jwtUtils.generateToken(userdetails);
-		
-		return new LoginResponse("Customer Login successful","customer",jwt,userdetails.getFirstName(),userdetails.getEmail());
-		
+		String jwt=jwtUtils.generateToken((UserDetails) principal);
+		return new LoginResponse("admin logged in successfully",status,jwt,firstName,email);
 		
 		
 	}

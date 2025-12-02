@@ -18,9 +18,7 @@ public class ProjectDto {
     @NotBlank(message = "Project name is required")
     private String projectName;
     
-    @NotNull(message = "Customer ID is required")
-    private Long customerId;
-    
+    @NotNull(message = "Designer is required")
     private Long designerId;
     
     private String location;

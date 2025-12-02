@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -31,5 +32,5 @@ public class ProjectResponseDto {
     private String city;
     private String state;
     private LocalDate createdAt;
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 }

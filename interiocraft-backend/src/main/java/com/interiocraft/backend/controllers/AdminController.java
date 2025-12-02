@@ -36,8 +36,6 @@ public class AdminController {
 	
 	private final DesignerService designerService;
 	
-	private final ProjectService projectService;
-	
 	
 	@PostMapping("/AddAdmin")
 	public ResponseEntity<?> addAdmin(@RequestBody @Valid AdminRegDto adregdto) {
@@ -67,38 +65,4 @@ public class AdminController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(designerService.addDesigner(desdto));
 	}
 	
-	@PostMapping("/projects")
-	public ResponseEntity<?> createProject(@RequestBody @Valid ProjectDto projectDto) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(projectDto));
-	}
-	
-	@GetMapping("/projects")
-	public ResponseEntity<?> getAllProjects() {
-		return ResponseEntity.ok(projectService.getAllProjects());
-	}
-	
-	@GetMapping("/projects/{id}")
-	public ResponseEntity<?> getProjectById(@PathVariable Long id) {
-		return ResponseEntity.ok(projectService.getProjectById(id));
-	}
-	
-	@PutMapping("/projects/{id}")
-	public ResponseEntity<?> updateProject(@PathVariable Long id, @RequestBody @Valid ProjectDto projectDto) {
-		return ResponseEntity.ok(projectService.updateProject(id, projectDto));
-	}
-	
-	@DeleteMapping("/projects/{id}")
-	public ResponseEntity<?> deleteProject(@PathVariable Long id) {
-		return ResponseEntity.ok(projectService.deleteProject(id));
-	}
-	
-	@GetMapping("/projects/status/{status}")
-	public ResponseEntity<?> getProjectsByStatus(@PathVariable String status) {
-		return ResponseEntity.ok(projectService.getProjectsByStatus(status));
-	}
-	
-	@GetMapping("/projects/customer/{customerId}")
-	public ResponseEntity<?> getProjectsByCustomer(@PathVariable Long customerId) {
-		return ResponseEntity.ok(projectService.getProjectsByCustomer(customerId));
-	}
 }

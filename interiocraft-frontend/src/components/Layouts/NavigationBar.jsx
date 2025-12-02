@@ -42,7 +42,9 @@ export function NavigationBar() {
               <Nav.Link as={Link} to="/about">About</Nav.Link>
               <Nav.Link as={Link} to="/services">Services</Nav.Link>
               <Nav.Link as={Link} to="/contact">Contact</Nav.Link>
-              <Nav.Link as={Link} to="/budget-estimator">budget</Nav.Link>
+              <Nav.Link as={Link} to="/budget-estimator">Budget</Nav.Link>
+              <Nav.Link as={Link} to="/customer-dashboard">Customer</Nav.Link>
+              <Nav.Link as={Link} to="/admin-dashboard">Admin</Nav.Link>
             </Nav>
 
             <div className="d-flex gap-2">

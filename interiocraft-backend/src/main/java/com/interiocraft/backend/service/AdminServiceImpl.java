@@ -4,6 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import com.interiocraft.backend.dto.ApiResponse;
 
 import com.interiocraft.backend.dto.LoginResponse;
 import com.interiocraft.backend.entities.Admin;
+import com.interiocraft.backend.entities.Customer;
 import com.interiocraft.backend.repository.AdminRepository;
 import com.interiocraft.backend.security.JwtUtils;
 
@@ -60,12 +62,31 @@ private final AuthenticationManager authenticationManager;
 	                adsigndto.getEmail(),  
 	                adsigndto.getPassword()  
 	            );
+		
+		String firstName;
+		String email;
+		String status;
 		Authentication authenticatedAdmin = authenticationManager.authenticate(authToken);
+		Object principal=authenticatedAdmin.getPrincipal();
+		System.out.println(principal);
+		if (principal instanceof Customer) {
+		    Customer c = (Customer) principal;
+		    firstName = c.getFirstName();
+		    email = c.getEmail();
+		    status = "customer";
+		} 
+		else if (principal instanceof Admin) {
+		    Admin a = (Admin) principal;
+		    firstName = a.getFirstName();
+		    email = a.getEmail();
+		    status = "admin";
+		} 
+		else {
+		    throw new IllegalStateException("Unknown user type: " + principal.getClass());
+		}
 		
-		Admin userdetails=(Admin) authenticatedAdmin.getPrincipal();
-		
-		String jwt=jwtutil.generateToken(userdetails);
-		return new LoginResponse("admin logged in successfully","admin",jwt,userdetails.getFirstName(),userdetails.getEmail());
+		String jwt=jwtutil.generateToken((UserDetails) principal);
+		return new LoginResponse("admin logged in successfully",status,jwt,firstName,email);
 	}
 
 }

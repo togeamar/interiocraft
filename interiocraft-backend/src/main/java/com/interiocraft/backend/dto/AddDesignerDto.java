@@ -33,6 +33,8 @@ public class AddDesignerDto {
 	@NotNull
     @Column(name = "experience")
     private Integer experienceYears;
+	
+	private boolean isAvailable=true;
     
    
 }

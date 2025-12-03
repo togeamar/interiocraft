@@ -171,31 +171,18 @@ public class ProjectServiceImpl implements ProjectService {
     }
     
     private ProjectResponseDto mapToResponseDto(Project project) {
-        ProjectResponseDto dto = new ProjectResponseDto();
-        dto.setId(project.getId());
-        dto.setProjectName(project.getProjectName());
-        dto.setCustomerId(project.getCustomer().getId());
-        dto.setCustomerName(project.getCustomer().getFirstName() + " " + project.getCustomer().getLastName());
+    	ProjectResponseDto dto = modelMapper.map(project, ProjectResponseDto.class);
+        
         
         if (project.getDesigner() != null) {
-            dto.setDesignerId(project.getDesigner().getId());
             dto.setDesignerName(project.getDesigner().getFullName());
         }
         
-        dto.setLocation(project.getLocation());
-        dto.setBudget(project.getBudget());
-        dto.setProjectStatus(project.getProjectStatus().toString());
-        dto.setStatusMessage(project.getStatusMessage());
-        dto.setFeedback(project.getFeedback());
-        dto.setProjectType(project.getProjectType());
-        dto.setAreaSqft(project.getAreaSqft());
-        dto.setStartDate(project.getStartDate());
-        dto.setCompletionDate(project.getCompletionDate());
-        dto.setAddress(project.getAddress());
-        dto.setCity(project.getCity());
-        dto.setState(project.getState());
-        dto.setCreatedAt(project.getCreatedOn());
-        dto.setUpdatedAt(project.getLastUpdated());
+        if (project.getImages() != null) {
+            dto.setImageUrls(project.getImages().stream()
+                .map(ProjectImage::getImageUrl)
+                .collect(Collectors.toList()));
+        }
         
         return dto;
     }

@@ -43,7 +43,7 @@ public class ProjectController {
 	        return ResponseEntity.badRequest().body("You can only upload a maximum of 4 images.");
 	    }
 		try {
-            // 3. Manually convert String to Object
+            
             ProjectDto projectDto = objectMapper.readValue(projectDtoJson, ProjectDto.class);
             
             System.out.println("in add project controller");
@@ -55,8 +55,7 @@ public class ProjectController {
             return ResponseEntity.badRequest().body("Invalid JSON in projectDto: " + e.getMessage());
         }
 
-		//System.out.println("in add project controller");
-		//return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(email,projectDto,files));
+		
 	}
 	
 	@GetMapping("/projects")

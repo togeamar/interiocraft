@@ -8,9 +8,13 @@ import heroBg2 from "../../assets/images/hero-bg-2.jpg";
 import heroBg3 from "../../assets/images/hero-bg-3.jpg";
 import heroBg4 from "../../assets/images/hero-bg-4.jpg";
 import "./Home.css";
+import { useEffect, useState } from "react";
+import { getAllProjects } from "../../services/projectservices.js";
 
 export function Home() {
   const navigate = useNavigate();
+
+  const [Projects,setallprojects]= useState([]);
 
   const heroImages = {
     bg1: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1600",
@@ -40,57 +44,28 @@ export function Home() {
       description: "Creating the perfect environment for your home"
     }
   ];
+  useEffect(() => {
+  const fetchallprojects = async () => {
+    try {
+      const projects = await getAllProjects();
+      console.log("project"+projects.data)
+      setallprojects(projects.data);
+    } catch(error) {
+      let message = "Something went wrong";
 
-  const projects = [
-    {
-      id: 1,
-      projectName: "Modern Minimalist Loft",
-      projectType: "Residential",
-      image: heroImages.bg1,
-      description: "A clean, airy renovation maximizing natural light and open space.",
-      budget: 250000,
-      areaSqft: 1500,
-      location: "Downtown Mumbai",
-      city: "Mumbai",
-      state: "Maharashtra",
-      projectStatus: "COMPLETED",
-      designerName: "Sarah Johnson",
-      startDate: "2024-01-15",
-      completionDate: "2024-03-20"
-    },
-    {
-      id: 2,
-      projectName: "Eco-Friendly Office",
-      projectType: "Commercial",
-      image: heroImages.bg4,
-      description: "Sustainable workspace design incorporating biophilic elements.",
-      budget: 180000,
-      areaSqft: 2000,
-      location: "Tech Park Bangalore",
-      city: "Bangalore",
-      state: "Karnataka",
-      projectStatus: "COMPLETED",
-      designerName: "Mike Chen",
-      startDate: "2024-02-01",
-      completionDate: "2024-04-15"
-    },
-    {
-      id: 3,
-      projectName: "Luxury Penthouse",
-      projectType: "Residential",
-      image: heroImages.bg3,
-      description: "High-end finishes and bespoke furniture for an exclusive client.",
-      budget: 500000,
-      areaSqft: 3000,
-      location: "Bandra West",
-      city: "Mumbai",
-      state: "Maharashtra",
-      projectStatus: "COMPLETED",
-      designerName: "Emma Wilson",
-      startDate: "2023-11-01",
-      completionDate: "2024-02-28"
+      if (error.response) {
+        message = error.response.data?.message || "Server error";
+      } else if (error.request) {
+        message = "Network error. Please check your connection.";
+      } else {
+        message = error.message;
+      }
+      console.error("getallproject error2:", message);
     }
-  ];
+  }
+  
+  fetchallprojects(); // ADD THIS LINE - calls the function when component mounts
+}, []);
 
   const handleViewProject = (projectId) => {
     navigate(`/project/${projectId}`);
@@ -174,23 +149,28 @@ export function Home() {
           </div>
 
           <Row className="g-4">
-            {projects.map((project) => (
+            {Projects.map((project) => (
               <Col lg={4} md={6} key={project.id}>
                 <Card className="h-100 border-0 shadow-sm project-card overflow-hidden">
                   <div className="project-img-wrapper position-relative">
-                    <Card.Img variant="top" src={project.image} alt={project.projectName} />
+                    <Card.Img variant="top" src={project.imageUrls && project.imageUrls.length > 0 
+                                                ? project.imageUrls[0] 
+                                                : "https://via.placeholder.com/400x300?text=No+Image"} alt={project.projectName} />
                     <Badge bg="light" text="dark" className="position-absolute top-0 end-0 m-3 shadow-sm">
                       {project.projectType}
                     </Badge>
                   </div>
                   <Card.Body className="p-4">
                     <div className="d-flex align-items-center text-muted mb-2 small">
+                      {project.projectName}
+                    </div>
+                    <div className="d-flex align-items-center text-muted mb-2 small">
                       <MapPin className="me-2 text-primary" size={16} />
-                      {project.location}
+                      <Badge>{project.location}</Badge>
                     </div>
                     <Card.Title className="fw-bold fs-5 mb-3">{project.projectName}</Card.Title>
                     <Card.Text className="text-muted small mb-4">
-                      {project.description}
+                      {project.areaSqft+" sqrft"}
                     </Card.Text>
                     <Button 
                       variant="outline-primary" 

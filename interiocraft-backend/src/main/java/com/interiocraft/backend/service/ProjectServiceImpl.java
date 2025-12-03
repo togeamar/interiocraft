@@ -12,6 +12,7 @@ import com.interiocraft.backend.dto.ProjectResponseDto;
 import com.interiocraft.backend.entities.Customer;
 import com.interiocraft.backend.entities.Designer;
 import com.interiocraft.backend.entities.Project;
+import com.interiocraft.backend.entities.ProjectImage;
 import com.interiocraft.backend.entities.ProjectStatus;
 import com.interiocraft.backend.repository.CustomerRepository;
 import com.interiocraft.backend.repository.DesignerRepository;
@@ -49,28 +50,28 @@ public class ProjectServiceImpl implements ProjectService {
             .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
         
         Project project = modelMapper.map(projectDto, Project.class);
-        // List<String> fileUrls = new ArrayList<>(); // No longer needed as separate list
+        project.setProjectStatus(ProjectStatus.REQUESTED);
 
         try {
-            Path uploadPath = Paths.get("uploads/");
+        	Path uploadPath = Paths.get("uploads/");
             if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
 
-            // 2. Loop through every file
             for (MultipartFile file : files) {
-                String originalFilename = file.getOriginalFilename();
-                String fileName = UUID.randomUUID().toString() + "_" + StringUtils.cleanPath(originalFilename != null ? originalFilename : "unknown");
+                String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+                String fileName = UUID.randomUUID().toString() + "_" + originalFilename;
                 Path filePath = uploadPath.resolve(fileName);
+                
+                
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
                 
-                // Add generated URL to the list
-                String fileUrl = "http://localhost:8080/images/" + fileName;
+                ProjectImage projectImage = new ProjectImage();
+                projectImage.setImageName(originalFilename);
+                projectImage.setImageUrl("http://localhost:8080/images/" + fileName);
                 
-                com.interiocraft.backend.entities.ProjectImage projectImage = new com.interiocraft.backend.entities.ProjectImage();
-                projectImage.setImageName(fileName);
-                projectImage.setImageUrl(fileUrl);
-                project.addProjectImage(projectImage);
+                
+                project.addProjectImage(projectImage); 
+                
             }
-
         } catch (IOException e) {
             return new ApiResponse("upload failed", "Failure");
         }
@@ -181,51 +182,19 @@ public class ProjectServiceImpl implements ProjectService {
     }
     
     private ProjectResponseDto mapToResponseDto(Project project) {
-        try {
-            ProjectResponseDto dto = new ProjectResponseDto();
-            dto.setId(project.getId());
-            dto.setProjectName(project.getProjectName());
-            
-            if (project.getCustomer() != null) {
-                dto.setCustomerId(project.getCustomer().getId());
-                dto.setCustomerName(project.getCustomer().getFirstName() + " " + project.getCustomer().getLastName());
-            }
-            
-            if (project.getDesigner() != null) {
-                dto.setDesignerId(project.getDesigner().getId());
-                dto.setDesignerName(project.getDesigner().getFullName());
-            }
-            
-            dto.setLocation(project.getLocation());
-            dto.setBudget(project.getBudget());
-            
-            if (project.getProjectStatus() != null) {
-                dto.setProjectStatus(project.getProjectStatus().toString());
-            }
-            
-            dto.setStatusMessage(project.getStatusMessage());
-            dto.setFeedback(project.getFeedback());
-            dto.setProjectType(project.getProjectType());
-            dto.setAreaSqft(project.getAreaSqft());
-            dto.setStartDate(project.getStartDate());
-            dto.setCompletionDate(project.getCompletionDate());
-            dto.setAddress(project.getAddress());
-            dto.setCity(project.getCity());
-            dto.setState(project.getState());
-            dto.setCreatedOn(project.getCreatedOn());
-            dto.setLastUpdated(project.getLastUpdated());
-            
-            if (project.getImages() != null) {
-                dto.setImageUrls(project.getImages().stream()
-                    .map(com.interiocraft.backend.entities.ProjectImage::getImageUrl)
-                    .collect(Collectors.toList()));
-            }
-            
-            return dto;
-        } catch (Exception e) {
-            System.err.println("Error mapping project with ID: " + project.getId());
-            e.printStackTrace();
-            return null;
+    	ProjectResponseDto dto = modelMapper.map(project, ProjectResponseDto.class);
+        
+        
+        if (project.getDesigner() != null) {
+            dto.setDesignerName(project.getDesigner().getFullName());
         }
+        
+        if (project.getImages() != null) {
+            dto.setImageUrls(project.getImages().stream()
+                .map(ProjectImage::getImageUrl)
+                .collect(Collectors.toList()));
+        }
+        
+        return dto;
     }
 }

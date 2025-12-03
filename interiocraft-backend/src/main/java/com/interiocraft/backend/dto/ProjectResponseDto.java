@@ -32,7 +32,7 @@ public class ProjectResponseDto {
     private String address;
     private String city;
     private String state;
-    private LocalDate createdOn;
-    private LocalDateTime lastUpdated;
+    private LocalDate createdAt;
+    private LocalDateTime updatedAt;
     private List<String> imageUrls;
 }

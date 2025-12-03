@@ -39,7 +39,7 @@ function App() {
           </Route>
         </Route>
 
-        {/* <Route path="/consultations" element={<ConsultationRequests />} /> */}
+        
       </Routes>
     </BrowserRouter>
   );

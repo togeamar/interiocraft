@@ -18,7 +18,7 @@ import com.interiocraft.backend.repository.CustomerRepository;
 import com.interiocraft.backend.repository.DesignerRepository;
 import com.interiocraft.backend.repository.ProjectRepository;
 
-import org.springframework.util.FileCopyUtils;
+
 import org.springframework.util.StringUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -79,25 +79,29 @@ public class ProjectServiceImpl implements ProjectService {
         
         System.out.println(project);
        
-            Designer designer = designerRepository.findById(projectDto.getDesignerId())
+        Long designerId = projectDto.getDesignerId();
+        if (designerId != null) {
+            Designer designer = designerRepository.findById(designerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Designer not found"));
             project.setDesigner(designer);
-        
-        if(designer.isAvailable()) {
-        	projectRepository.save(project);
-        	return new ApiResponse("Project created successfully", "Success");
+            
+            if(designer.isAvailable()) {
+                projectRepository.save(project);
+                return new ApiResponse("Project created successfully", "Success");
+            }
+            else {
+                return new ApiResponse("Designer is not Available", "Failure");
+            }
+        } else {
+             projectRepository.save(project);
+             return new ApiResponse("Project created successfully", "Success");
         }
-        else {
-        	return new ApiResponse("Designer is not Available", "Failure");
-        }
-        
-        
-        
     }
     
     @Override
     @Transactional(readOnly = true)
     public ProjectResponseDto getProjectById(Long id) {
+        if (id == null) throw new IllegalArgumentException("ID cannot be null");
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         return mapToResponseDto(project);
@@ -106,13 +110,15 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public List<ProjectResponseDto> getAllProjects() {
-        return projectRepository.findAll().stream()
+        return projectRepository.findAllWithDetails().stream()
             .map(this::mapToResponseDto)
+            .filter(dto -> dto != null)
             .collect(Collectors.toList());
     }
     
     @Override
     public ApiResponse updateProject(Long id, ProjectDto projectDto) {
+        if (id == null) throw new IllegalArgumentException("ID cannot be null");
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         
@@ -134,8 +140,9 @@ public class ProjectServiceImpl implements ProjectService {
         project.setCity(projectDto.getCity());
         project.setState(projectDto.getState());
         
-        if (projectDto.getDesignerId() != null) {
-            Designer designer = designerRepository.findById(projectDto.getDesignerId())
+        Long designerId = projectDto.getDesignerId();
+        if (designerId != null) {
+            Designer designer = designerRepository.findById(designerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Designer not found"));
             project.setDesigner(designer);
         }
@@ -146,6 +153,7 @@ public class ProjectServiceImpl implements ProjectService {
     
     @Override
     public ApiResponse deleteProject(Long id) {
+        if (id == null) throw new IllegalArgumentException("ID cannot be null");
         if (!projectRepository.existsById(id)) {
             throw new ResourceNotFoundException("Project not found");
         }
@@ -159,14 +167,17 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectStatus projectStatus = ProjectStatus.valueOf(status.toUpperCase());
         return projectRepository.findByProjectStatus(projectStatus).stream()
             .map(this::mapToResponseDto)
+            .filter(dto -> dto != null)
             .collect(Collectors.toList());
     }
     
     @Override
     @Transactional(readOnly = true)
     public List<ProjectResponseDto> getProjectsByCustomer(Long customerId) {
+        if (customerId == null) throw new IllegalArgumentException("Customer ID cannot be null");
         return projectRepository.findByCustomerId(customerId).stream()
             .map(this::mapToResponseDto)
+            .filter(dto -> dto != null)
             .collect(Collectors.toList());
     }
     

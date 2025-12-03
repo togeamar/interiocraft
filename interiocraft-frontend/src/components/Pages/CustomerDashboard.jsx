@@ -1,52 +1,85 @@
-import { useState } from 'react';
-import { Container, Nav, Table, Button, Form, Badge, Card, Row, Col } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Container, Nav, Table, Button, Form, Badge, Card, Row, Col, Alert, Modal } from 'react-bootstrap';
+import client from '../../services/client';
+import { API_BASE_URL } from '../../constants/ApiConstants';
+import { useNavigate } from 'react-router-dom';
 
 const getStatusBadge = (status) => {
   const variants = { 'REQUESTED': 'warning', 'IN_PROGRESS': 'primary', 'COMPLETED': 'success', 'CANCELLED': 'danger' };
-  return <Badge bg={variants[status]}>{status}</Badge>;
+  return <Badge bg={variants[status] || 'secondary'}>{status}</Badge>;
 };
+
+import { Link } from 'react-router-dom';
 
 const MyProjects = ({ projects }) => (
   <div>
     <h4 style={{ color: 'var(--primary-color)' }} className="mb-4">My Projects</h4>
-    <Table striped bordered hover>
-      <thead style={{ backgroundColor: 'var(--light-bg)' }}>
-        <tr><th>ID</th><th>Project Name</th><th>Status</th><th>Budget</th><th>Designer</th><th>Actions</th></tr>
-      </thead>
-      <tbody>
-        {projects.map(project => (
-          <tr key={project.id}>
-            <td>{project.id}</td>
-            <td>{project.projectName}</td>
-            <td>{getStatusBadge(project.projectStatus)}</td>
-            <td>₹{project.budget?.toLocaleString()}</td>
-            <td>{project.designerName || 'Not Assigned'}</td>
-            <td>
-              <Button size="sm" variant="outline-primary" className="me-2">View</Button>
-              <Button size="sm" variant="outline-secondary">Edit</Button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </Table>
+    {projects.length === 0 ? (
+      <Alert variant="info">No projects found.</Alert>
+    ) : (
+      <Table striped bordered hover responsive>
+        <thead style={{ backgroundColor: 'var(--light-bg)' }}>
+          <tr><th>ID</th><th>Project Name</th><th>Status</th><th>Budget</th><th>Designer</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {projects.map(project => (
+            <tr key={project.id}>
+              <td>{project.id}</td>
+              <td>{project.projectName}</td>
+              <td>{getStatusBadge(project.projectStatus)}</td>
+              <td>₹{project.budget?.toLocaleString()}</td>
+              <td>{project.designerName || 'Not Assigned'}</td>
+              <td>
+                <Button as={Link} to={`/project/${project.id}`} size="sm" variant="outline-primary" className="me-2">View</Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    )}
   </div>
 );
 
-const RequestProject = () => (
-  <div>
-    <h4 style={{ color: 'var(--primary-color)' }} className="mb-4">Request New Project</h4>
-    <Form>
+const RequestProjectForm = ({ onSubmit, onCancel }) => {
+  const [formData, setFormData] = useState({
+    projectName: '',
+    budget: '',
+    projectType: '',
+    areaSqft: '',
+    location: '',
+    address: '',
+    city: '',
+    state: '',
+    description: ''
+  });
+  const [files, setFiles] = useState([]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    setFiles(e.target.files);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formData, files);
+  };
+
+  return (
+    <Form onSubmit={handleSubmit}>
       <Row>
         <Col md={6}>
           <Form.Group className="mb-3">
             <Form.Label>Project Name</Form.Label>
-            <Form.Control type="text" placeholder="Enter project name" />
+            <Form.Control type="text" name="projectName" value={formData.projectName} onChange={handleChange} required placeholder="Enter project name" />
           </Form.Group>
         </Col>
         <Col md={6}>
           <Form.Group className="mb-3">
             <Form.Label>Budget</Form.Label>
-            <Form.Control type="number" placeholder="Enter budget" />
+            <Form.Control type="number" name="budget" value={formData.budget} onChange={handleChange} required placeholder="Enter budget" />
           </Form.Group>
         </Col>
       </Row>
@@ -54,31 +87,66 @@ const RequestProject = () => (
         <Col md={6}>
           <Form.Group className="mb-3">
             <Form.Label>Project Type</Form.Label>
-            <Form.Select>
-              <option>Select project type</option>
-              <option>Residential</option>
-              <option>Commercial</option>
-              <option>Office</option>
+            <Form.Select name="projectType" value={formData.projectType} onChange={handleChange} required>
+              <option value="">Select project type</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Office">Office</option>
             </Form.Select>
           </Form.Group>
         </Col>
         <Col md={6}>
           <Form.Group className="mb-3">
             <Form.Label>Area (Sq Ft)</Form.Label>
-            <Form.Control type="number" placeholder="Enter area" />
+            <Form.Control type="number" name="areaSqft" value={formData.areaSqft} onChange={handleChange} required placeholder="Enter area" />
+          </Form.Group>
+        </Col>
+      </Row>
+      <Row>
+        <Col md={6}>
+           <Form.Group className="mb-3">
+            <Form.Label>Location</Form.Label>
+            <Form.Control type="text" name="location" value={formData.location} onChange={handleChange} required placeholder="Enter location" />
+          </Form.Group>
+        </Col>
+        <Col md={6}>
+           <Form.Group className="mb-3">
+            <Form.Label>City</Form.Label>
+            <Form.Control type="text" name="city" value={formData.city} onChange={handleChange} required placeholder="Enter city" />
+          </Form.Group>
+        </Col>
+      </Row>
+      <Row>
+         <Col md={6}>
+           <Form.Group className="mb-3">
+            <Form.Label>State</Form.Label>
+            <Form.Control type="text" name="state" value={formData.state} onChange={handleChange} required placeholder="Enter state" />
+          </Form.Group>
+        </Col>
+         <Col md={6}>
+           <Form.Group className="mb-3">
+            <Form.Label>Address</Form.Label>
+            <Form.Control type="text" name="address" value={formData.address} onChange={handleChange} required placeholder="Enter address" />
           </Form.Group>
         </Col>
       </Row>
       <Form.Group className="mb-3">
-        <Form.Label>Description</Form.Label>
-        <Form.Control as="textarea" rows={3} placeholder="Describe your project requirements" />
+        <Form.Label>Description (Status Message)</Form.Label>
+        <Form.Control as="textarea" rows={3} name="description" value={formData.description} onChange={handleChange} placeholder="Describe your project requirements" />
       </Form.Group>
-      <Button style={{ backgroundColor: 'var(--primary-color)', borderColor: 'var(--primary-color)' }}>
-        Submit Request
-      </Button>
+      <Form.Group className="mb-3">
+          <Form.Label>Upload Images (Max 4)</Form.Label>
+          <Form.Control type="file" multiple onChange={handleFileChange} />
+      </Form.Group>
+      <div className="d-flex justify-content-end gap-2">
+        <Button variant="secondary" onClick={onCancel}>Cancel</Button>
+        <Button type="submit" style={{ backgroundColor: 'var(--primary-color)', borderColor: 'var(--primary-color)' }}>
+          Submit Request
+        </Button>
+      </div>
     </Form>
-  </div>
-);
+  );
+};
 
 const ProjectStatus = ({ projects }) => (
   <div>
@@ -109,7 +177,7 @@ const ProjectStatus = ({ projects }) => (
         </Card>
       </Col>
     </Row>
-    <Table striped bordered hover>
+    <Table striped bordered hover responsive>
       <thead style={{ backgroundColor: 'var(--light-bg)' }}>
         <tr><th>Project</th><th>Status</th><th>Progress</th><th>Designer</th></tr>
       </thead>
@@ -132,64 +200,139 @@ const ProjectStatus = ({ projects }) => (
 
 export default function CustomerDashboard() {
   const [activeTab, setActiveTab] = useState('projects');
-  const [projects] = useState([
-    { id: 1, projectName: 'Modern Living Room', budget: 150000, projectStatus: 'IN_PROGRESS', areaSqft: 1200, designerName: 'Jane Smith', startDate: '2024-01-15' },
-    { id: 2, projectName: 'Kitchen Renovation', budget: 80000, projectStatus: 'REQUESTED', areaSqft: 800, designerName: null, startDate: null },
-    { id: 3, projectName: 'Bedroom Design', budget: 120000, projectStatus: 'COMPLETED', areaSqft: 1000, designerName: 'Mike Brown', startDate: '2023-12-01' }
-  ]);
+  const [projects, setProjects] = useState([]);
+  const [customer, setCustomer] = useState(null);
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const stored = localStorage.getItem("customer");
+    if (!stored) {
+      navigate("/login");
+      return;
+    }
+    setCustomer(JSON.parse(stored));
+  }, [navigate]);
+
+  useEffect(() => {
+    if (customer) {
+      if (!customer.id) {
+        console.error("Customer ID is missing in localStorage data:", customer);
+        alert("Session invalid. Please log in again.");
+        localStorage.removeItem("customer");
+        navigate("/login");
+        return;
+      }
+      fetchProjects();
+    }
+  }, [customer]);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await client.get(`${API_BASE_URL}/Project/customer/${customer.id}`);
+      setProjects(response.data);
+    } catch (error) {
+      console.error("Error fetching projects", error);
+    }
+  };
+
+  const handleRequestSubmit = async (data, files) => {
+    try {
+      const formData = new FormData();
+      const projectDto = {
+        projectName: data.projectName,
+        budget: data.budget,
+        projectType: data.projectType,
+        areaSqft: data.areaSqft,
+        location: data.location,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        projectStatus: 'REQUESTED',
+        statusMessage: data.description
+      };
+
+      formData.append('project', new Blob([JSON.stringify(projectDto)], { type: 'application/json' }));
+      
+      for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+      }
+
+      await client.post(`${API_BASE_URL}/Project/addProject/${customer.email}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      alert("Project requested successfully!");
+      setShowRequestModal(false);
+      fetchProjects();
+    } catch (error) {
+      console.error("Error requesting project", error);
+      alert("Failed to request project.");
+    }
+  };
+
+  if (!customer) return <div>Loading...</div>;
 
   return (
     <Container fluid style={{ padding: '20px 0', minHeight: 'calc(100vh - 180px)' }}>
       <div style={{ backgroundColor: 'var(--white)', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <h2 className="text-center mb-5" style={{ color: 'var(--secondary-color)', fontWeight: '600' }}>Customer Dashboard</h2>
-        <Nav variant="pills" className="mb-4">
-          <Nav.Item>
-            <Nav.Link 
-              active={activeTab === 'projects'} 
-              onClick={() => setActiveTab('projects')} 
-              style={{ 
-                marginRight: '10px', 
-                borderRadius: '8px',
-                backgroundColor: activeTab === 'projects' ? 'var(--primary-color)' : 'transparent',
-                color: activeTab === 'projects' ? 'white' : 'var(--secondary-color)'
-              }}
-            >
-              My Projects
-            </Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link 
-              active={activeTab === 'request'} 
-              onClick={() => setActiveTab('request')} 
-              style={{ 
-                marginRight: '10px', 
-                borderRadius: '8px',
-                backgroundColor: activeTab === 'request' ? 'var(--primary-color)' : 'transparent',
-                color: activeTab === 'request' ? 'white' : 'var(--secondary-color)'
-              }}
-            >
-              Request Project
-            </Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link 
-              active={activeTab === 'status'} 
-              onClick={() => setActiveTab('status')} 
-              style={{ 
-                borderRadius: '8px',
-                backgroundColor: activeTab === 'status' ? 'var(--primary-color)' : 'transparent',
-                color: activeTab === 'status' ? 'white' : 'var(--secondary-color)'
-              }}
-            >
-              Project Status
-            </Nav.Link>
-          </Nav.Item>
-        </Nav>
+        <h2 className="text-center mb-5" style={{ color: 'var(--secondary-color)', fontWeight: '600' }}>
+            Welcome, {customer.firstName}
+        </h2>
+        
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <Nav variant="pills">
+            <Nav.Item>
+              <Nav.Link 
+                active={activeTab === 'projects'} 
+                onClick={() => setActiveTab('projects')} 
+                style={{ 
+                  marginRight: '10px', 
+                  borderRadius: '8px',
+                  backgroundColor: activeTab === 'projects' ? 'var(--primary-color)' : 'transparent',
+                  color: activeTab === 'projects' ? 'white' : 'var(--secondary-color)'
+                }}
+              >
+                My Projects
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link 
+                active={activeTab === 'status'} 
+                onClick={() => setActiveTab('status')} 
+                style={{ 
+                  borderRadius: '8px',
+                  backgroundColor: activeTab === 'status' ? 'var(--primary-color)' : 'transparent',
+                  color: activeTab === 'status' ? 'white' : 'var(--secondary-color)'
+                }}
+              >
+                Project Status
+              </Nav.Link>
+            </Nav.Item>
+          </Nav>
+          
+          <Button 
+            onClick={() => setShowRequestModal(true)}
+            style={{ backgroundColor: 'var(--primary-color)', borderColor: 'var(--primary-color)' }}
+          >
+            Request New Project
+          </Button>
+        </div>
         
         {activeTab === 'projects' && <MyProjects projects={projects} />}
-        {activeTab === 'request' && <RequestProject />}
         {activeTab === 'status' && <ProjectStatus projects={projects} />}
       </div>
+
+      <Modal show={showRequestModal} onHide={() => setShowRequestModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Request New Project</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <RequestProjectForm onSubmit={handleRequestSubmit} onCancel={() => setShowRequestModal(false)} />
+        </Modal.Body>
+      </Modal>
     </Container>
   );
 }

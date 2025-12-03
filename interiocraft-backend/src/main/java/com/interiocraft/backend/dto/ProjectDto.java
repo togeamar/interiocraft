@@ -1,7 +1,6 @@
 package com.interiocraft.backend.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +17,6 @@ public class ProjectDto {
     @NotBlank(message = "Project name is required")
     private String projectName;
     
-    @NotNull(message = "Designer is required")
     private Long designerId;
     
     private String location;

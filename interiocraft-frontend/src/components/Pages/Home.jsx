@@ -1,7 +1,8 @@
-import { Button, Carousel, Container, Row, Col, Card,Badge } from "react-bootstrap";
+import { useNavigate } from 'react-router-dom';
+import { Button, Carousel, Container, Row, Col, Card, Badge } from "react-bootstrap";
 import { FaAward, FaUsers, FaClock } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { Award, Users, Clock, ArrowRight,MapPin } from 'lucide-react';
+import { Award, Users, Clock, ArrowRight, MapPin } from 'lucide-react';
 import heroBg1 from "../../assets/images/hero-bg-1.jpg";
 import heroBg2 from "../../assets/images/hero-bg-2.jpg";
 import heroBg3 from "../../assets/images/hero-bg-3.jpg";
@@ -11,6 +12,7 @@ import { useEffect, useState } from "react";
 import { getAllProjects } from "../../services/projectservices.js";
 
 export function Home() {
+  const navigate = useNavigate();
 
   const [Projects,setallprojects]= useState([]);
 
@@ -64,6 +66,10 @@ export function Home() {
   
   fetchallprojects(); // ADD THIS LINE - calls the function when component mounts
 }, []);
+
+  const handleViewProject = (projectId) => {
+    navigate(`/project/${projectId}`);
+  };
 
 
   return (
@@ -162,11 +168,16 @@ export function Home() {
                       <MapPin className="me-2 text-primary" size={16} />
                       <Badge>{project.location}</Badge>
                     </div>
-                    <Card.Title className="fw-bold fs-5 mb-3">{project.title}</Card.Title>
+                    <Card.Title className="fw-bold fs-5 mb-3">{project.projectName}</Card.Title>
                     <Card.Text className="text-muted small mb-4">
                       {project.areaSqft+" sqrft"}
                     </Card.Text>
-                    <Button variant="outline-primary" size="sm" className="w-100 fw-semibold">
+                    <Button 
+                      variant="outline-primary" 
+                      size="sm" 
+                      className="w-100 fw-semibold"
+                      onClick={() => handleViewProject(project.id)}
+                    >
                       View Project <ArrowRight className="ms-2" size={16} />
                     </Button>
                   </Card.Body>
@@ -178,6 +189,8 @@ export function Home() {
           
         </Container>
       </section>
+
+
     </>
   );
 }

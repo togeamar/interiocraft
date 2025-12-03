@@ -10,6 +10,8 @@ import BudgetEstimator from "./components/Pages/BudgetEstimator";
 import { Consultation } from "./components/Pages/Consultation";
 import AdminDashboard from "./components/Pages/AdminDashboard";
 import CustomerDashboard from "./components/Pages/CustomerDashboard";
+import ProjectDetails from "./components/Pages/ProjectDetails";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -24,8 +26,17 @@ function App() {
           <Route path="signup" element={<Register />} />
           <Route path="budget-estimator" element={<BudgetEstimator />} />
           <Route path="consultation" element={<Consultation />} />
-          <Route path="customer-dashboard" element={<CustomerDashboard />} />
-          <Route path="admin-dashboard" element={<AdminDashboard />} />
+          <Route element={<ProtectedRoute allowedRoles={['customer']} />}>
+            <Route path="customer-dashboard" element={<CustomerDashboard />} />
+          </Route>
+          
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route path="admin-dashboard" element={<AdminDashboard />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['customer', 'admin']} />}>
+            <Route path="project/:id" element={<ProjectDetails />} />
+          </Route>
         </Route>
 
         

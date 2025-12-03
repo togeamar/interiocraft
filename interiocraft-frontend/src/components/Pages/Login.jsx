@@ -32,14 +32,20 @@ export function Login(){
         setLoginError(null);
         try{
             const res=await doLogin(values);
-            console.log(res.data+"from login");
             localStorage.setItem("token",res.data.jwt);
             localStorage.setItem("type",res.data.status);
             localStorage.setItem("loggedinuser",res.data.username);
             localStorage.setItem("loggedinemail",res.data.email);
+            localStorage.setItem("id",res.data.id)
             if(res.data.status==="admin") {
                 navigate("/admin-dashboard")
             }else{
+                const customerData = {
+                    id: res.data.id,
+                    firstName: res.data.username,
+                    email: res.data.email
+                };
+                localStorage.setItem("customer", JSON.stringify(customerData));
                 navigate("/customer-dashboard");
             }
         }

@@ -4,6 +4,7 @@
 
 # Maven
 backend/target/
+backend/uploads/
 backend/.mvn/
 backend/mvnw
 backend/mvnw.cmd
@@ -155,6 +156,7 @@ target/
 *.ipr
 
 ### NetBeans ###
+/uploads/
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -166,3 +168,4 @@ build/
 
 ### VS Code ###
 .vscode/
+interiocraft-backend/uploads/

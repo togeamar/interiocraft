@@ -29,13 +29,13 @@ public class CustomCustomerDetailsServiceimpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        // 1️⃣ Try Admin
+        
         Optional<Admin> adminOpt = adminRepo.findByEmail(email);
         if (adminOpt.isPresent()) {
             return adminOpt.get();
         }
 
-        // 2️⃣ Try Customer
+        
         Optional<Customer> custOpt = customerRepo.findByEmail(email);
         if (custOpt.isPresent()) {
             return custOpt.get();

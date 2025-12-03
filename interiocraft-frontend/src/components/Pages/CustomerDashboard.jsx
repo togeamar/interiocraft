@@ -50,7 +50,8 @@ const RequestProjectForm = ({ onSubmit, onCancel }) => {
     address: '',
     city: '',
     state: '',
-    description: ''
+    description: '',
+    designerId:''
   });
   const [files, setFiles] = useState([]);
 
@@ -241,6 +242,7 @@ export default function CustomerDashboard() {
       const formData = new FormData();
       const projectDto = {
         projectName: data.projectName,
+        designerId:null,
         budget: data.budget,
         projectType: data.projectType,
         areaSqft: data.areaSqft,
@@ -249,10 +251,13 @@ export default function CustomerDashboard() {
         city: data.city,
         state: data.state,
         projectStatus: 'REQUESTED',
-        statusMessage: data.description
+        statusMessage: data.description,
+        feedback:null,
+        startDate:null,
+        completionDate:null
       };
 
-      formData.append('project', new Blob([JSON.stringify(projectDto)], { type: 'application/json' }));
+      formData.append('projectDto', new Blob([JSON.stringify(projectDto)], { type: 'application/json' }));
       
       for (let i = 0; i < files.length; i++) {
         formData.append('files', files[i]);

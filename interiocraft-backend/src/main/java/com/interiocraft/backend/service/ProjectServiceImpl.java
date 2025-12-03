@@ -18,10 +18,12 @@ import com.interiocraft.backend.repository.CustomerRepository;
 import com.interiocraft.backend.repository.DesignerRepository;
 import com.interiocraft.backend.repository.ProjectRepository;
 
+import ch.qos.logback.classic.Logger;
 
 import org.springframework.util.StringUtils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,6 +36,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
@@ -57,6 +60,8 @@ public class ProjectServiceImpl implements ProjectService {
             if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
 
             for (MultipartFile file : files) {
+            	
+            	log.info("This is an informational message."+files.length);
                 String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
                 String fileName = UUID.randomUUID().toString() + "_" + originalFilename;
                 Path filePath = uploadPath.resolve(fileName);
@@ -144,6 +149,9 @@ public class ProjectServiceImpl implements ProjectService {
         if (designerId != null) {
             Designer designer = designerRepository.findById(designerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Designer not found"));
+            if(!designer.isAvailable()) {
+            	throw new ResourceNotFoundException("Designer is not available");
+            }
             project.setDesigner(designer);
         }
         

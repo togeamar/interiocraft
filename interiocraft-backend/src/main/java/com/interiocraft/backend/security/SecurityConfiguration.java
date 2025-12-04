@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity  // Enables @PreAuthorize, @Secured
+@EnableMethodSecurity  
 @RequiredArgsConstructor
 public class SecurityConfiguration {
     
@@ -58,7 +58,7 @@ public class SecurityConfiguration {
                     "/customer/test",
                     "/customer/signup",
                     "/Admin/signin",
-                    "/Admin/addadmin",
+                    "/Admin/AddAdmin",
                     "/Admin/AddDesigner",
                     "/Project/addProject/{email}",
                     "/images/**",
@@ -69,10 +69,10 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, "/adddesigner")
                     .hasRole("Admin")  
                 
-                .requestMatchers(HttpMethod.POST, "/appointments/*/mark-complete-with-tests")
-                    .hasRole("DOCTOR")  
+                .requestMatchers(HttpMethod.POST, "/customer/**")
+                    .hasRole("CUSTOMER")  
                 
-                .requestMatchers("/admin/**")
+                .requestMatchers("/Admin/designers")
                     .hasRole("ADMIN")    
                 
                

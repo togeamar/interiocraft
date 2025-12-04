@@ -16,7 +16,7 @@ public class CustomerRegDto {
 	@NotBlank(message = "First name is required")
 	private String firstName;
 	@NotBlank(message="Last name is required")
-	private String lastname;
+	private String lastName;
 	@NotBlank(message = "Email is required")
 	@Email(message = "Invalid email format")
 	@Size(max = 100, message = "Email cannot exceed 100 characters")

@@ -65,6 +65,7 @@ public class CustomerServiceImpl implements CustomerService {
 		String firstName;
 		String email;
 		String status;
+		String lastName;
 		Long id;
 		Authentication authenticatedUser = authenticationManager.authenticate(authToken);
 		Object principal=authenticatedUser.getPrincipal();
@@ -73,12 +74,14 @@ public class CustomerServiceImpl implements CustomerService {
 		    Customer c = (Customer) principal;
 		    firstName = c.getFirstName();
 		    email = c.getEmail();
+		    lastName=c.getLastName();
 		    id = c.getId();
 		    status = "customer";
 		} 
 		else if (principal instanceof Admin) {
 		    Admin a = (Admin) principal;
 		    firstName = a.getFirstName();
+		    lastName=a.getLastName();
 		    email = a.getEmail();
 		    id = a.getId();
 		    status = "admin";
@@ -88,7 +91,7 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 		
 		String jwt=jwtUtils.generateToken((UserDetails) principal);
-		return new LoginResponse("admin logged in successfully",status,jwt,firstName,email, id);
+		return new LoginResponse("admin logged in successfully",status,jwt,firstName+" "+lastName,email, id);
 		
 		
 	}

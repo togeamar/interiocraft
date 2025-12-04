@@ -18,7 +18,7 @@ export function Register() {
 
   const SignUpSchema = Yup.object().shape({
     firstName: Yup.string().min(2, "Too short!").required("First name is required"),
-    lastname: Yup.string().min(2, "Too short!").required("Last name is required"),
+    lastName: Yup.string().min(2, "Too short!").required("Last name is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
@@ -83,7 +83,7 @@ export function Register() {
               )}
 
               <Formik
-                initialValues={{firstName: "",lastname: "",email: "",phoneNumber:"",password: "",
+                initialValues={{firstName: "",lastName: "",email: "",phoneNumber:"",password: "",
                 }}
                 validationSchema={SignUpSchema}
                 onSubmit={handleSubmit}
@@ -109,9 +109,9 @@ export function Register() {
                     <div className="mb-2">
                       <label className="form-label fw-semibold">Last Name</label>
                       <Field
-                        name="lastname"
+                        name="lastName"
                         type="text"
-                        className={`form-control ${touched.lastname && errors.lastname ? "is-invalid" : ""
+                        className={`form-control ${touched.lastName && errors.lastName ? "is-invalid" : ""
                           }`}
                         placeholder="Enter last name"
                       />

@@ -15,8 +15,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     
     List<Project> findByProjectStatus(ProjectStatus status);
     
-    @Query("SELECT p FROM Project p LEFT JOIN FETCH p.customer LEFT JOIN FETCH p.designer WHERE p.customer.id = :customerId")
-    List<Project> findByCustomerId(@Param("customerId") Long customerId);
+    
+    List<Project> findByCustomerId(Long customerId);
     
     List<Project> findByDesignerId(Long designerId);
     

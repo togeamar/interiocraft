@@ -13,23 +13,25 @@ export function Footer() {
             </small>
           </Col>
 
-          <Col md={4} className="text-center">
+          <Col md={4} className="d-flex-column text-center">
+            <h5 className="fw-bold mb-2" style={{color: 'var(--primary-color)'}}>Developed By</h5>
+            <p className="f2-bold">Amar Toge||Apurva Dhonde||Shreya Pandharipande</p>
           </Col>
 
           <Col md={4} className="d-flex justify-content-center justify-content-md-end gap-3">
             <a href="#" aria-label="Facebook" className="social-icon">
               <FaFacebookF size={20} />
             </a>
-            <a href="#" aria-label="Instagram" className="social-icon">
+            <a href="https://www.instagram.com/amar.toge/" target="_blank" aria-label="Instagram" className="social-icon">
               <FaInstagram size={20} />
             </a>
             <a href="#" aria-label="Pinterest" className="social-icon">
               <FaPinterest size={20} />
             </a>
-            <a href="#" aria-label="LinkedIn" className="social-icon">
+            <a href="https://www.linkedin.com/in/amar-toge-062936182/" target="_blank" aria-label="LinkedIn" className="social-icon">
               <FaLinkedinIn size={20} />
             </a>
-            <a href="#" aria-label="Twitter" className="social-icon">
+            <a href="https://x.com/indianbharatiy_" target="_blank" aria-label="Twitter" className="social-icon">
               <FaTwitter size={20} />
             </a>
           </Col>

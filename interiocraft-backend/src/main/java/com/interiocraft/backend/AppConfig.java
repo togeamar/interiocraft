@@ -14,11 +14,10 @@ public class AppConfig {
     public ModelMapper modelMapper() {
 ModelMapper modelMapper = new ModelMapper();
         
-        // 2. Use STRICT strategy. 
-        // This stops ModelMapper from "guessing" ambiguous fields like customerName.
+        
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         
-        // 3. Return the VARIABLE, not the method name!
+        
         return modelMapper;
     }
 }

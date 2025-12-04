@@ -82,9 +82,7 @@ export function Home() {
               <Carousel.Caption>
                 <h1 className="display-4 fw-bold mb-4">{slide.title}</h1>
                 <p className="lead mb-4">{slide.description}</p>
-                <Button size="lg" className="fw-semibold" style={{backgroundColor: '#ced4da', borderColor: '#ced4da', color: '#333'}}>
-                  Our Design
-                </Button>
+                
               </Carousel.Caption>
             </Carousel.Item>
           ))}

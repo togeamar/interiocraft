@@ -29,7 +29,7 @@ public class JwtUtils {
     
     @PostConstruct
     public void myInit() {
-        // Create signing key from secret string
+     
         key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
     
@@ -53,21 +53,21 @@ public class JwtUtils {
         }
         
         return Jwts.builder()
-            .subject(user.getUsername())              // Email as subject
-            .issuedAt(now)                         // When token was created
-            .expiration(expiryDate)                // When token expires
-            .claims(Map.of(                        // Custom data (payload)
+            .subject(user.getUsername())         
+            .issuedAt(now)                    
+            .expiration(expiryDate)                
+            .claims(Map.of(                       
                 "user_id", userId,
                 "role", role
             ))
-            .signWith(key)                         // Sign with secret key
-            .compact();                            // Build the token
+            .signWith(key)                    
+            .compact();                      
     }
     public Claims validateToken(String jwt) {
         return Jwts.parser()
-            .verifyWith(key)                       // Use same key to verify
+            .verifyWith(key)                      
             .build()
-            .parseSignedClaims(jwt)                // Parse and validate
-            .getPayload();                         // Extract data (claims)
+            .parseSignedClaims(jwt)             
+            .getPayload();                        
     }
 }

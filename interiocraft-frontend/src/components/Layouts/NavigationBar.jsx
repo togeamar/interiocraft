@@ -61,17 +61,22 @@ export function NavigationBar() {
           <Offcanvas.Body>
             <Nav className="justify-content-center flex-grow-1">
               <Nav.Link as={Link} to="/">Home</Nav.Link>
-              <Nav.Link as={Link} to="/about">About</Nav.Link>
-              <Nav.Link as={Link} to="/services">Services</Nav.Link>
-              <Nav.Link as={Link} to="/contact">Contact</Nav.Link>
-              <Nav.Link as={Link} to="/budget-estimator">Budget</Nav.Link>
-              
+
               {isAuthenticated && userRole === 'customer' && (
                 <Nav.Link as={Link} to="/customer-dashboard">Dashboard</Nav.Link>
               )}
               {isAuthenticated && userRole === 'admin' && (
                 <Nav.Link as={Link} to="/admin-dashboard">Dashboard</Nav.Link>
               )}
+              
+              <Nav.Link as={Link} to="/services">Services</Nav.Link>
+              
+              <Nav.Link as={Link} to="/budget-estimator">Budget</Nav.Link>
+              
+              
+              
+              <Nav.Link as={Link} to="/about">About</Nav.Link>
+              <Nav.Link as={Link} to="/contact">Contact</Nav.Link>
             </Nav>
 
             <div className="d-flex gap-2">
@@ -84,9 +89,7 @@ export function NavigationBar() {
                   Logout
                 </Button>
               )}
-              <Button as={Link} to="/consultation" size="sm" style={{backgroundColor: 'var(--primary-color)', borderColor: 'var(--primary-color)', color: 'white'}} onMouseEnter={(e) => {e.target.style.backgroundColor = 'var(--secondary-color)';}} onMouseLeave={(e) => {e.target.style.backgroundColor = 'var(--primary-color)'}}>
-                Consultation
-              </Button>
+              
             </div>
           </Offcanvas.Body>
         </Navbar.Offcanvas>

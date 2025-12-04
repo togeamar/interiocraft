@@ -14,6 +14,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (activeTab === 'projects') {
       fetchProjects();
+      fetchDesigners();
     } else if (activeTab === 'designers') {
       fetchDesigners();
     } else if (activeTab === 'customers') {
@@ -58,19 +59,11 @@ export default function AdminDashboard() {
   const [editingProject, setEditingProject] = useState(null);
   const [editingDesigner, setEditingDesigner] = useState(null);
 
-  const [projectFormData, setProjectFormData] = useState({ 
-    projectName: '', 
-    designerId: '', 
-    location: '', 
-    budget: '', 
-    projectType: '', 
-    areaSqft: '', 
-    address: '', 
-    city: '', 
-    state: '',
-    customerName: '' 
+  const [projectFormData, setProjectFormData] = useState({ projectName: '', designerId: '', budget: '', 
+    projectType: '', areaSqft: '', address: '', city: '', state: '',customerName: '' ,projectStatus:''
   });
-  const [designerFormData, setDesignerFormData] = useState({ firstName: '', lastName: '', email: '', phoneNumber: '', experienceYears: '' });
+  const [designerFormData, setDesignerFormData] = useState({ firstName: '', lastName: '', email: '', phoneNumber: '',
+     experienceYears: '' });
 
   const getStatusBadge = (status) => {
     const variants = { 'REQUESTED': 'warning', 'ONGOING': 'primary', 'COMPLETED': 'success', 'CANCELLED': 'danger' };
@@ -136,7 +129,7 @@ export default function AdminDashboard() {
             address: projectFormData.address,
             city: projectFormData.city,
             state: projectFormData.state,
-            projectStatus: editingProject.projectStatus // Keep existing status
+            projectStatus: projectFormData.projectStatus||editingProject.projectStatus // Keep existing status
           };
           await client.put(`${API_BASE_URL}/Project/${editingProject.id}`, projectData);
       } else {
@@ -154,7 +147,7 @@ export default function AdminDashboard() {
             state: projectFormData.state,
             projectStatus: 'REQUESTED'
           };
-          
+          console.log();
           formData.append('project', new Blob([JSON.stringify(projectData)], { type: 'application/json' }));
           const customerEmail = projectFormData.customerName; 
 
@@ -180,7 +173,7 @@ export default function AdminDashboard() {
       });
     } catch (error) {
       console.error('Error saving project:', error);
-      alert('Error saving project. Please check your inputs.');
+      alert('selected '+error.response?.data.message);
     } finally {
       setLoading(false);
     }
@@ -329,7 +322,7 @@ export default function AdminDashboard() {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4 style={{ color: 'var(--primary-color)' }}>Project Management</h4>
-        <Button style={{ backgroundColor: 'var(--primary-color)', borderColor: 'var(--primary-color)' }} onClick={() => { setEditingProject(null); setProjectFormData({ projectName: '', designerId: '', location: '', budget: '', projectType: '', areaSqft: '', address: '', city: '', state: '', customerName: '' }); setShowProjectModal(true); }}>Add Project</Button>
+        
       </div>
       
       <Row className="mb-4">
@@ -369,7 +362,7 @@ export default function AdminDashboard() {
 
       <Table striped bordered hover responsive>
         <thead style={{ backgroundColor: 'var(--light-bg)' }}>
-            <tr><th>ID</th><th>Name</th><th>Customer</th><th>Status</th><th>Budget</th><th>Actions</th></tr>
+            <tr><th>ID</th><th>Name</th><th>Customer</th><th>Designer</th><th>Status</th><th>Budget</th><th>Actions</th></tr>
         </thead>
         <tbody>
             {(selectedStatus ? projects.filter(p => p.projectStatus === selectedStatus) : projects).map(project => (
@@ -377,6 +370,7 @@ export default function AdminDashboard() {
                     <td>{project.id}</td>
                     <td>{project.projectName}</td>
                     <td>{project.customerName}</td>
+                    <td>{project.designerName}</td>
                     <td>{getStatusBadge(project.projectStatus)}</td>
                     <td>₹{project.budget?.toLocaleString()}</td>
                     <td>
@@ -512,7 +506,7 @@ export default function AdminDashboard() {
       </div>
       <Table striped bordered hover responsive>
         <thead style={{ backgroundColor: 'var(--light-bg)' }}>
-          <tr><th>ID</th><th>Name</th><th>Email</th><th>Experience</th><th>Rating</th><th>Actions</th></tr>
+          <tr><th>ID</th><th>Name</th><th>Email</th><th>Experience</th><th>Status</th><th>Actions</th></tr>
         </thead>
         <tbody>
           {designers.map(designer => (
@@ -521,7 +515,7 @@ export default function AdminDashboard() {
               <td>{designer.fullName}</td>
               <td>{designer.email}</td>
               <td>{designer.experienceYears} years</td>
-              <td>{designer.rating || 'N/A'}</td>
+              <td>{designer.available?"available":"not available"}</td>
               <td>
                 <Button size="sm" variant="outline-primary" className="me-2" onClick={() => handleEditDesigner(designer)}>Edit</Button>
                 <Button size="sm" variant="outline-danger" onClick={() => handleDeleteDesigner(designer.id)}>Delete</Button>
@@ -576,7 +570,14 @@ export default function AdminDashboard() {
             )}
             <Form.Group className="mb-3">
               <Form.Label>Designer ID (Optional)</Form.Label>
-              <Form.Control type="number" value={projectFormData.designerId} onChange={(e) => setProjectFormData({...projectFormData, designerId: e.target.value})} />
+              <Form.Select type="number" value={projectFormData.designerId} onChange={(e) => setProjectFormData({...projectFormData, designerId: e.target.value,projectStatus:"ONGOING"})} >
+                <option value="">select designer</option>
+                {
+                  designers.map(designer=>(
+                    <option value={designer.id}>{designer.fullName}</option>
+                  ))
+                }
+              </Form.Select>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Budget</Form.Label>
@@ -585,10 +586,6 @@ export default function AdminDashboard() {
             <Form.Group className="mb-3">
               <Form.Label>Area (sq ft)</Form.Label>
               <Form.Control type="number" value={projectFormData.areaSqft} onChange={(e) => setProjectFormData({...projectFormData, areaSqft: e.target.value})} required />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Location</Form.Label>
-              <Form.Control type="text" value={projectFormData.location} onChange={(e) => setProjectFormData({...projectFormData, location: e.target.value})} required />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>City</Form.Label>

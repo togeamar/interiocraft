@@ -77,5 +77,8 @@ public class Project extends BaseEntity {
         this.images.remove(projectImage);
         projectImage.setProject(null);
     }
-
+    
+    public void changeDesignerstatus(Designer designer){
+    	designer.setAvailable(false);
+    }
 }

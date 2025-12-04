@@ -46,7 +46,6 @@ const RequestProjectForm = ({ onSubmit, onCancel }) => {
     budget: '',
     projectType: '',
     areaSqft: '',
-    location: '',
     address: '',
     city: '',
     state: '',
@@ -104,13 +103,7 @@ const RequestProjectForm = ({ onSubmit, onCancel }) => {
         </Col>
       </Row>
       <Row>
-        <Col md={6}>
-           <Form.Group className="mb-3">
-            <Form.Label>Location</Form.Label>
-            <Form.Control type="text" name="location" value={formData.location} onChange={handleChange} required placeholder="Enter location" />
-          </Form.Group>
-        </Col>
-        <Col md={6}>
+        <Col md={12}>
            <Form.Group className="mb-3">
             <Form.Label>City</Form.Label>
             <Form.Control type="text" name="city" value={formData.city} onChange={handleChange} required placeholder="Enter city" />
@@ -242,6 +235,7 @@ export default function CustomerDashboard() {
       const formData = new FormData();
       const projectDto = {
         projectName: data.projectName,
+        customerName:customer.firstName,
         designerId:null,
         budget: data.budget,
         projectType: data.projectType,

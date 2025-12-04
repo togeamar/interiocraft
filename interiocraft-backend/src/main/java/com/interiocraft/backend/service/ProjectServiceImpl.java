@@ -45,7 +45,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final CustomerRepository customerRepository;
     private final DesignerRepository designerRepository;
     private final ModelMapper modelMapper;
-    
+
     @Override
     public ApiResponse createProject(String customerEmail,ProjectDto projectDto,MultipartFile[] files) {
     	System.out.println("in create project");
@@ -121,39 +121,42 @@ public class ProjectServiceImpl implements ProjectService {
             .collect(Collectors.toList());
     }
     
+    
+
+    
     @Override
     public ApiResponse updateProject(Long id, ProjectDto projectDto) {
+    	modelMapper.getConfiguration().setSkipNullEnabled(true);
+    	
+    	Designer designer=null;
+    	Long designerId = projectDto.getDesignerId();
+        if (designerId != null) {
+            designer = designerRepository.findById(designerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Designer not found"));
+            System.out.println("3. Designer found: " + designer.getFullName());
+            System.out.println("4. Designer isAvailable(): " + designer.isAvailable());
+            if(!designer.isAvailable()) {
+            	throw new ResourceNotFoundException("Designer is not available");
+            }
+            
+        }
+    	
         if (id == null) throw new IllegalArgumentException("ID cannot be null");
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         
-        project.setProjectName(projectDto.getProjectName());
-        project.setLocation(projectDto.getLocation());
-        project.setBudget(projectDto.getBudget());
+        modelMapper.map(projectDto,project);
+        
         
         if (projectDto.getProjectStatus() != null) {
             project.setProjectStatus(ProjectStatus.valueOf(projectDto.getProjectStatus()));
         }
         
-        project.setStatusMessage(projectDto.getStatusMessage());
-        project.setFeedback(projectDto.getFeedback());
-        project.setProjectType(projectDto.getProjectType());
-        project.setAreaSqft(projectDto.getAreaSqft());
-        project.setStartDate(projectDto.getStartDate());
-        project.setCompletionDate(projectDto.getCompletionDate());
-        project.setAddress(projectDto.getAddress());
-        project.setCity(projectDto.getCity());
-        project.setState(projectDto.getState());
-        
-        Long designerId = projectDto.getDesignerId();
-        if (designerId != null) {
-            Designer designer = designerRepository.findById(designerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Designer not found"));
-            if(!designer.isAvailable()) {
-            	throw new ResourceNotFoundException("Designer is not available");
-            }
+        if (designer != null) {
             project.setDesigner(designer);
+            project.changeDesignerstatus(designer);
         }
+        
         
         projectRepository.save(project);
         return new ApiResponse("Project updated successfully", "Success");
@@ -187,12 +190,15 @@ public class ProjectServiceImpl implements ProjectService {
             .map(this::mapToResponseDto)
             .filter(dto -> dto != null)
             .collect(Collectors.toList());
+        
     }
     
     private ProjectResponseDto mapToResponseDto(Project project) {
     	ProjectResponseDto dto = modelMapper.map(project, ProjectResponseDto.class);
-        
-        
+        log.info("fsfscsfs"+project.toString());
+        if(project.getCustomer()!=null) {
+        	dto.setCustomerName(project.getCustomer().getFirstName()+" "+project.getCustomer().getLastName());
+        }
         if (project.getDesigner() != null) {
             dto.setDesignerName(project.getDesigner().getFullName());
         }

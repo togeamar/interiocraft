@@ -29,10 +29,11 @@ public class DesignerServiceImpl implements DesignerService {
 		
 		Designer designer=modelMapper.map(desdto, Designer.class);
 		
+		
 		if (designer == null) {
 			throw new ApiException("Failed to map Designer DTO to Entity");
 		}
-		
+		designer.setAvailable(true);
 		Designer persistentDesigner=designerRepo.save(designer);
 		
 		return new ApiResponse("New Designer is Added with id"+persistentDesigner.getId(),"Success");
@@ -53,6 +54,7 @@ public class DesignerServiceImpl implements DesignerService {
 		designer.setEmail(desdto.getEmail());
 		designer.setPhoneNumber(desdto.getPhoneNumber());
 		designer.setExperienceYears(desdto.getExperienceYears());
+		designer.setAvailable(desdto.isAvailable());
 		
 		designerRepo.save(designer);
 		return new ApiResponse("Designer updated successfully", "Success");
